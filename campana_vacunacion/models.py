@@ -52,10 +52,10 @@ class Campaña(models.Model):
         ).first()
 
         if cita_disponible:
-            cita_disponible.estado_cita = False # Marcamos como reservada
-            cita_disponible.paciente_citado = paciente
-            cita_disponible.save()
-            return True, cita_disponible
+            # Si la cita esta disponible, llamamos al metodo de Cita responsable de agendar
+            exito = cita_disponible.agendar(paciente)
+            if exito:
+                return True, cita_disponible
         return False, None
 
 
@@ -70,10 +70,57 @@ class Cita(models.Model):
     paciente_citado = models.ForeignKey('manejo_usuarios.Paciente', on_delete=models.SET_NULL, null=True)
     personal_citado = models.ForeignKey('PersonalCita', on_delete=models.SET_NULL, null=True, related_name='citas_del_personal')
 
+    def esta_disponible(self):
+        # Comprobamos la disponibilidad de la cita, si su estado es True y no tiene un paciente asignado entonces esta disponible
+        return self.estado_cita and self.paciente_citado is None
+
+    def agendar(self, paciente):
+        # Reserva la cita para el paciente si está disponible
+        if self.esta_disponible():
+            self.estado_cita = False
+            self.paciente_citado = paciente
+            self.save()
+            return True
+        return False
+    #En caso de ser necesario cancelar una cita, liberamos la cita para una posterior asignacion
+    def cancelar(self):
+        self.estado_cita = True
+        self.paciente_citado = None
+        self.save()
+        return True
+
+
 class PersonalCita(models.Model):
     personal_citado = models.ForeignKey('manejo_usuarios.Personal', on_delete=models.SET_NULL, null=True)
     cita = models.ForeignKey('Cita', on_delete=models.SET_NULL, null=True)
-    
+
+    @classmethod
+    def asignar_personal(cls, personal, cita):
+        # Creamos o actualizamos el registro que vincula al personal con la cita
+        registro, creado = cls.objects.get_or_create(cita=cita)
+        registro.personal_citado = personal
+        registro.save()
+        
+        # Actualizamos la cita para reflejar este registro (manteniendo consistencia)
+        cita.personal_citado = registro
+        cita.save()
+        
+        return registro
+
+    @classmethod
+    def eliminar_personal(cls, cita):
+        # Buscamos si existe un registro de personal para esta cita
+        registro = cls.objects.filter(cita=cita).first()
+        if registro:
+            # Eliminamos el registro de asignación
+            registro.delete()
+            
+            # Limpiamos la referencia en la cita
+            cita.personal_citado = None
+            cita.save()
+            return True
+        return False
+
 class CentroVacunacion(models.Model):
     id_centro = models.IntegerField(unique=True, primary_key=True)
     nombre_centro = models.CharField(max_length=100)
