@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import CampoTextoInput from './components/CampoTextoInput'
 
 function FormularioVacuna() {
   // 1. Estados para almacenar los datos
@@ -56,39 +57,33 @@ function FormularioVacuna() {
         </button>
       </Link>
 
-      <h1>Gestión de Vacunas (Ejemplo Básico)</h1>
+      <h1>Gestión de Vacunas</h1>
 
       {/* Formulario de Registro */}
       <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
         <h3>Registrar Nueva Vacuna</h3>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '10px' }}>
-            <label>ID Vacuna: </label>
-            <input
-              type="number"
-              placeholder="Ej. 1"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Nombre: </label>
-            <input
-              type="text"
-              placeholder="Ej. Pfizer"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Stock: </label>
-            <input
-              type="number"
-              placeholder="Ej. 100"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-            />
-          </div>
+          <CampoTextoInput
+            mensaje="ID Vacuna"
+            tipo_dato="number"
+            ejemplo="Ej. 1"
+            valor_almacenado={id}
+            onChange={(val) => setId(val)}
+          />
+          <CampoTextoInput
+            mensaje="Nombre"
+            tipo_dato="text"
+            ejemplo="Ej. Pfizer"
+            valor_almacenado={nombre}
+            onChange={(val) => setNombre(val)}
+          />
+          <CampoTextoInput
+            mensaje="Stock"
+            tipo_dato="number"
+            ejemplo="Ej. 100"
+            valor_almacenado={stock}
+            onChange={(val) => setStock(val)}
+          />
           <button type="submit">Guardar en Base de Datos</button>
         </form>
       </div>

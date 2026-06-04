@@ -1,3 +1,4 @@
+from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
@@ -19,3 +20,8 @@ class UsuarioRecibioVacunaViewSet(viewsets.ModelViewSet):
 class VacunacionPorCampañaViewSet(viewsets.ModelViewSet):
     queryset = VacunacionPorCampaña.objects.all()
     serializer_class = VacunacionPorCampañaSerializer
+
+class CrearVacunacionRegistroAPIView(CreateAPIView):
+    serializer_class = FormularioVacunacionSerializer
+    
+    

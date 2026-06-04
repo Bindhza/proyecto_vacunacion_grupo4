@@ -1,28 +1,30 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import CampoTextoInput from './components/CampoTextoInput'
+import CampoTextoOptions from './components/CampoTextoOptions'
 
 function FormularioVacunacion() {
     //almacenamiento del estado de datos
     //vacunacion
 
-    const [id_vacunacion, setVacunacion] = useState('')
+    const [id_vacunacion, setIdVacunacion] = useState('')
     const [fecha_vacunacion, setFechaVacunacion] = useState('')
     const [observaciones, setObservaciones] = useState('')
     const [vacunas, setVacunas] = useState([])
     const [vacuna_aplicada, setVacunaAplicada] = useState('')
-    //const [centro, setCentros] = useState([])
-    //el centro se extrae del funcionario que lo vacuna
 
-    //const [campañas, setCampaña] = useState([])
+    const [centro_vacunacion, setCentroVacunacion] = useState('')
+    //el centro se extrae del funcionario que lo vacuna que despues sera entregado
+    //de momento dejar asi
+
+    const [id_campania, setIdCampaña] = useState('')
     //la campaña se puede extraer de la vacuna
+    //de momento dejar asi
 
 
     //usuario_recibio_vacuna
     const [rut_vacunado, setRutVacunado] = useState('')
-
-    //campaña
-    const [id_campania, setIdCampaña] = useState('')
 
 
     //realizamos la peticion GET para obtener las vacunas
@@ -46,29 +48,21 @@ function FormularioVacunacion() {
             fecha_vacunacion: fecha_vacunacion,
             observaciones: observaciones,
             vacuna_aplicada: parseInt(vacuna_aplicada),
-            //centro_vacunacion: centro_vacunacion, se aplicara despues
-            usuario_recibio_vacuna: usuario_recibio_vacuna,
-            //id_campania: id_campania  se agregara despues
+            id_usuario: rut_vacunado,
+            centro_vacunacion: null, // se aplicará después
+            id_campaña: null         // se agregará después
         }
 
         //peticion POST para guardar la vacunacion realizada
-        axios.post('http://127.0.0.1:8000/api/vacunacion/', nuevaVacunacion)
-            .then(response => {
-                // obtenemos el id de la vacunacion realizada
-                const asociacionPaciente = {
-                    rut_vacunado: rut_vacunado,
-                    id_vacunacion: parseInt(id_vacunacion),
-                }
-                //guardamos la asociacion entre el usuario y la vacuna
-                return axios.post('http://127.0.0.1:8000/api/usuario_recibio_vacuna/', asociacionPaciente)
-            })
-            // se limpia el formulario para rellenar nuevos datos
+        axios.post('http://127.0.0.1:8000/api/enviar_formulario/', nuevaVacunacion)
             .then(() => {
+                // se limpia el formulario para rellenar nuevos datos
                 setRutVacunado('')
                 setFechaVacunacion('')
                 setVacunaAplicada('')
                 setObservaciones('')
                 setIdVacunacion('')
+                alert('Registro de vacunación guardado exitosamente.')
             })
             .catch(error => {
                 alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
@@ -92,53 +86,39 @@ function FormularioVacunacion() {
             <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
                 <h3>Registrar Vacunacion</h3>
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label>ID Vacunacion: </label>
-                        <input
-                            type="text"
-                            placeholder="Ej. 1"
-                            value={id_vacunacion}
-                            onChange={(e) => setIdVacunacion(e.target.value)}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label>Rut Vacunado: </label>
-                        <input
-                            type="text"
-                            placeholder="Ej. 12345678-9"
-                            value={rut_vacunado}
-                            onChange={(e) => setRutVacunado(e.target.value)}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label>Fecha Vacunacion: </label>
-                        <input
-                            type="date"
-                            placeholder="Ej. 2022-01-01"
-                            value={fecha_vacunacion}
-                            onChange={(e) => setFechaVacunacion(e.target.value)}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label> Vacuna Aplicada: </label>
-                        {/*select permite mostrar una lista de opciones para que el usuario seleccione una*/}
-                        {/*value setea el valor seleccionado*/}
-                        <select
-                            value={vacuna_aplicada}
-                            onChange={(e) => setVacunaAplicada(e.target.value)}
-                            required
-                        >
-                            {/*opcion predeterminada*/}
-                            <option value="">-- Seleccione Vacuna --</option>
+                    {/* componente CampoTexto */}
+                    <CampoTextoInput
+                        mensaje="ID Vacunacion"
+                        tipo_dato="text"
+                        ejemplo="Ej. 1"
+                        valor_almacenado={id_vacunacion}
+                        onChange={(val) => setIdVacunacion(val)}
+                    />
+                    <CampoTextoInput
+                        mensaje="Rut Vacunado"
+                        tipo_dato="text"
+                        ejemplo="Ej. 12345678-9"
+                        valor_almacenado={rut_vacunado}
+                        onChange={(val) => setRutVacunado(val)}
+                    />
+                    <CampoTextoInput
+                        mensaje="Fecha Vacunacion: "
+                        tipo_dato="date"
+                        ejemplo="Ej. 2022-01-01"
+                        valor_almacenado={fecha_vacunacion}
+                        onChange={(val) => setFechaVacunacion(val)}
+                    />
 
-                            {/*se recore y agrega cada vacuna como una opcion */}
-                            {vacunas.map((vacuna) => (
-                                <option key={vacuna.id_vacuna} value={vacuna.id_vacuna}>
-                                    {vacuna.nombre_vacuna} (Stock: {vacuna.stock_disponible})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/*componente CampoTextoOptions para seleccionar la vacuna a aplicar*/}
+                    <CampoTextoOptions
+                        mensaje="Vacuna Aplicada: "
+                        data_type={vacunas}
+                        default_value="-- Seleccione Vacuna --"
+                        valor_almacenado={vacuna_aplicada}
+                        onChange={(val) => setVacunaAplicada(val)}
+                    />
+
+                    {/*campo de texto para observaciones*/}
                     <div style={{ marginBottom: '15px' }}>
                         <label style={{
                             verticalAlign: 'top'
