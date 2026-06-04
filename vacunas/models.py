@@ -17,7 +17,7 @@ class VacunacionPorCampaña(models.Model):
 class Vacuna(models.Model):
 
     id_vacuna = models.IntegerField(unique=True, primary_key=True)
-    stock_disponible = models.IntegerField(unique=True)
+    stock_disponible = models.IntegerField(default=0)
     nombre_vacuna = models.CharField(max_length=100)
 
 class UsuarioRecibioVacuna(models.Model):
