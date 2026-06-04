@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ButtonMenuPrincipal from './components/ButtonMenuPrincipal'
 
 function MenuPrincipal() {
   return (
@@ -6,23 +7,20 @@ function MenuPrincipal() {
       <h1>Menú Principal</h1>
       <p>Bienvenido al sistema de control de vacunación.</p>
 
-      {/* bloque del primer boton*/}
-      <div style={{ marginBottom: '15px' }}>
-        {/* para evitar que se recargue la página y hace que el boton redireccione al formulario de vacunas*/}
-        <Link to="/formulario/vacuna">
-          <button style={{ fontSize: '18px', padding: '12px 24px', cursor: 'pointer' }}>
-            Entrar al formulario de Vacunas
-          </button>
-        </Link>
-      </div>
-      {/* bloque del segundo boton */}
-      <div>
-        <Link to="/formulario/vacunacion">
-          <button style={{ fontSize: '18px', padding: '12px 24px', cursor: 'pointer' }}>
-            Entrar al formulario de Vacunacion
-          </button>
-        </Link>
-      </div>
+      <ButtonMenuPrincipal 
+        mensaje="Entrar al formulario de Vacuna"
+        ruta="/formulario/vacuna"
+      />
+
+      <ButtonMenuPrincipal 
+        mensaje="Entrar al formulario de Vacunacion"
+        ruta="/formulario/vacunacion"
+      />
+
+      <ButtonMenuPrincipal 
+        mensaje="Entrar al formulario de Centro de Vacunacion"
+        ruta="/formulario/centro"
+      />
     </div>
   )
 }
