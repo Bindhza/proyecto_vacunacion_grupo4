@@ -119,3 +119,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'manejo_usuarios.Usuario'
+
+#  CONFIGURACIÓN DE SESIONES 
+# Expira la sesión después de 30 minutos (1800 segundos) de INACTIVIDAD.
+SESSION_COOKIE_AGE = 1800 
+
+# Cada vez que el usuario interactúa con la app (clic, petición al backend), 
+# se reinicia el contador de los 30 minutos.
+SESSION_SAVE_EVERY_REQUEST = True 
