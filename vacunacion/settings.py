@@ -122,7 +122,7 @@ STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'manejo_usuarios.Usuario'
 
-# --- CONFIGURACIÓN DE SESIONES ---
+#  CONFIGURACIÓN DE SESIONES 
 # Expira la sesión después de 30 minutos (1800 segundos) de INACTIVIDAD.
 SESSION_COOKIE_AGE = 1800 
 
