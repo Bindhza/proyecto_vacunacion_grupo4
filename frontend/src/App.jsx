@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import MenuPrincipal from './MenuPrincipal'
 import FormularioVacuna from './FormularioVacunas'
+import FormularioVacunacion from './FormularioVacunacion'
 
 function App() {
   return (

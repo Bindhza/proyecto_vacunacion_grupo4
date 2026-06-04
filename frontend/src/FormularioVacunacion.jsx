@@ -2,17 +2,34 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
-function FormularioVacuna() {
+function FormularioVacunacion() {
     //almacenamiento del estado de datos
-    const [rut_vacunado, setVacunas] = useState([])
-    const [fecha_vacunacion, setId] = useState('')
-    const [nombre, setNombre] = useState('')
-    const [stock, setStock] = useState('')
-    // 2. Petición GET al cargar la página para listar las vacunas
+    //vacunacion
+
+    const [id_vacunacion, setVacunacion] = useState('')
+    const [fecha_vacunacion, setFechaVacunacion] = useState('')
+    const [observaciones, setObservaciones] = useState('')
+    const [vacunas, setVacunas] = useState([])
+    const [vacuna_aplicada, setVacunaAplicada] = useState('')
+    //const [centro, setCentros] = useState([])
+    //el centro se extrae del funcionario que lo vacuna
+
+    //const [campañas, setCampaña] = useState([])
+    //la campaña se puede extraer de la vacuna
+
+
+    //usuario_recibio_vacuna
+    const [rut_vacunado, setRutVacunado] = useState('')
+
+    //campaña
+    const [id_campania, setIdCampaña] = useState('')
+
+
+    //realizamos la peticion GET para obtener las vacunas
     useEffect(() => {
         axios.get('http://127.0.0.1:8000/api/vacunas/')
             .then(response => {
-                setVacunas(response.data) // Guardamos las vacunas que nos da Django
+                setVacunas(response.data) //pedimos todas las vacunas disponibles para mostrar
             })
             .catch(error => {
                 console.error('Error al cargar datos:', error)
@@ -23,21 +40,35 @@ function FormularioVacuna() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        // Armamos el objeto con la estructura que espera Django
-        const nuevaVacuna = {
-            id_vacuna: parseInt(id),
-            nombre_vacuna: nombre,
-            stock_disponible: parseInt(stock)
+        // se prepara la subida de la nueva vacunacion
+        const nuevaVacunacion = {
+            id_vacunacion: parseInt(id_vacunacion),
+            fecha_vacunacion: fecha_vacunacion,
+            observaciones: observaciones,
+            vacuna_aplicada: parseInt(vacuna_aplicada),
+            //centro_vacunacion: centro_vacunacion, se aplicara despues
+            usuario_recibio_vacuna: usuario_recibio_vacuna,
+            //id_campania: id_campania  se agregara despues
         }
 
-        axios.post('http://127.0.0.1:8000/api/vacunas/', nuevaVacuna)
+        //peticion POST para guardar la vacunacion realizada
+        axios.post('http://127.0.0.1:8000/api/vacunacion/', nuevaVacunacion)
             .then(response => {
-                // Agregamos la nueva vacuna retornada por Django a la lista en pantalla
-                setVacunas([...vacunas, response.data])
-                // Limpiamos los campos del formulario
-                setId('')
-                setNombre('')
-                setStock('')
+                // obtenemos el id de la vacunacion realizada
+                const asociacionPaciente = {
+                    rut_vacunado: rut_vacunado,
+                    id_vacunacion: parseInt(id_vacunacion),
+                }
+                //guardamos la asociacion entre el usuario y la vacuna
+                return axios.post('http://127.0.0.1:8000/api/usuario_recibio_vacuna/', asociacionPaciente)
+            })
+            // se limpia el formulario para rellenar nuevos datos
+            .then(() => {
+                setRutVacunado('')
+                setFechaVacunacion('')
+                setVacunaAplicada('')
+                setObservaciones('')
+                setIdVacunacion('')
             })
             .catch(error => {
                 alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
@@ -55,60 +86,85 @@ function FormularioVacuna() {
                 </button>
             </Link>
 
-            <h1>Gestión de Vacunas (Ejemplo Básico)</h1>
+            <h1>Gestión de Vacunacion</h1>
 
-            {/* Formulario de Registro */}
+            {/* formulario de registro de vacunacion de usuarios */}
             <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
-                <h3>Registrar Nueva Vacuna</h3>
+                <h3>Registrar Vacunacion</h3>
                 <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: '10px' }}>
-                        <label>ID Vacuna: </label>
-                        <input
-                            type="number"
-                            placeholder="Ej. 1"
-                            value={id}
-                            onChange={(e) => setId(e.target.value)}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label>Nombre: </label>
+                        <label>ID Vacunacion: </label>
                         <input
                             type="text"
-                            placeholder="Ej. Pfizer"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
+                            placeholder="Ej. 1"
+                            value={id_vacunacion}
+                            onChange={(e) => setIdVacunacion(e.target.value)}
                         />
                     </div>
                     <div style={{ marginBottom: '10px' }}>
-                        <label>Stock: </label>
+                        <label>Rut Vacunado: </label>
                         <input
-                            type="number"
-                            placeholder="Ej. 100"
-                            value={stock}
-                            onChange={(e) => setStock(e.target.value)}
+                            type="text"
+                            placeholder="Ej. 12345678-9"
+                            value={rut_vacunado}
+                            onChange={(e) => setRutVacunado(e.target.value)}
                         />
                     </div>
-                    <button type="submit">Guardar en Base de Datos</button>
-                </form>
-            </div>
+                    <div style={{ marginBottom: '10px' }}>
+                        <label>Fecha Vacunacion: </label>
+                        <input
+                            type="date"
+                            placeholder="Ej. 2022-01-01"
+                            value={fecha_vacunacion}
+                            onChange={(e) => setFechaVacunacion(e.target.value)}
+                        />
+                    </div>
+                    <div style={{ marginBottom: '10px' }}>
+                        <label> Vacuna Aplicada: </label>
+                        {/*select permite mostrar una lista de opciones para que el usuario seleccione una*/}
+                        {/*value setea el valor seleccionado*/}
+                        <select
+                            value={vacuna_aplicada}
+                            onChange={(e) => setVacunaAplicada(e.target.value)}
+                            required
+                        >
+                            {/*opcion predeterminada*/}
+                            <option value="">-- Seleccione Vacuna --</option>
 
-            {/* Listado de Resultados */}
-            <div>
-                <h3>Lista de Vacunas en el Sistema</h3>
-                {vacunas.length === 0 ? (
-                    <p>No hay vacunas en el sistema.</p>
-                ) : (
-                    <ul>
-                        {vacunas.map((v) => (
-                            <li key={v.id_vacuna} style={{ marginBottom: '5px' }}>
-                                <strong>ID:</strong> {v.id_vacuna} | <strong>Nombre:</strong> {v.nombre_vacuna} | <strong>Stock:</strong> {v.stock_disponible} unidades
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                            {/*se recore y agrega cada vacuna como una opcion */}
+                            {vacunas.map((vacuna) => (
+                                <option key={vacuna.id_vacuna} value={vacuna.id_vacuna}>
+                                    {vacuna.nombre_vacuna} (Stock: {vacuna.stock_disponible})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{
+                            verticalAlign: 'top'
+                        }}>
+
+                            Observaciones: </label>
+                        <textarea
+                            type="text"
+                            placeholder="Ej. Sin observaciones"
+                            value={observaciones}
+                            onChange={(e) => setObservaciones(e.target.value)}
+                            style={{
+                                width: '80%',
+                                height: '100px',
+                                padding: '10px',
+                                resize: 'vertical',
+                                boxSizing: 'border-box'
+                            }}
+
+                        />
+                    </div>
+                    <button type="submit">Guardar Usuario Vacunado</button>
+                </form>
             </div>
         </div>
     )
 }
 
-export default FormularioVacuna
+export default FormularioVacunacion
