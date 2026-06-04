@@ -115,6 +115,7 @@ def perfil_usuario(request):
             'apellidos': usuario.apellidos,
             'correo': usuario.correo,
             'edad': usuario.obtener_edad,
+            'grupo_riesgo': usuario.es_grupo_riesgo,
             'rol': 'Usuario Base',
             'historial_vacunas': historial_serializado
         }

@@ -61,6 +61,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         hoy = date.today()
         return hoy.year - self.fecha_nacimiento.year - ((hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
     
+    #Comprueba si el usuario es grupo de riesgo (Por ahora solo por edad, sujeto a mejoras)
+    @property
+    def es_grupo_riesgo(self):
+        edad = self.obtener_edad
+        return edad >= 65 or edad <= 5
+
     #Propiedad para verificar el tipo de usuario
     @property
     def es_paciente(self):
@@ -126,3 +132,13 @@ class Historial(models.Model):
     # Numero de dosis recibida
     dosis = models.IntegerField()
 
+    #Metodo para organizar y mostrar el historial
+    class Meta:
+        verbose_name = 'Historial de Vacunación'
+        verbose_name_plural = 'Historiales de Vacunación'
+        ordering = ['-fecha', '-hora']  # Ordena desde el más reciente al más antiguo por defecto
+
+    def __str__(self):
+        # Evitamos errores si la vacuna fue eliminada
+        nombre_vacuna = self.vacuna.nombre_vacuna if self.vacuna else "Vacuna Desconocida"
+        return f"{self.usuario.rut} | {nombre_vacuna} - Dosis {self.dosis} ({self.fecha})"
