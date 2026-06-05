@@ -1,6 +1,6 @@
 ![Diagrama de comunicación](diagramaComunicacionCreacionObjeto.png)
 
-**GRASP
+## GRASP
 Controller: registrar_dosis_view actúa como el controlador; recibe la petición HTTP desde el frontend, valida la sesión y el rol de usuario, y coordina la ejecución sin contener lógica de negocio interna.
 
 Information Expert: Personal es el experto en el acto clínico; conoce quién está realizando el registro y calcula la dosis correspondiente basándose en el historial.
@@ -11,7 +11,7 @@ Creator: Personal es el creador del Historial (la dosis aplicada), ya que posee 
 
 Bajo Acoplamiento: La vista no manipula directamente las tablas de la base de datos; delega las acciones a las entidades del modelo (Personal, Vacuna), manteniendo la interfaz web aislada de la estructura de persistencia.
 
-**Escenario Principal de Éxito: Registro de Vacunación.
+## Escenario Principal de Éxito: Registro de Vacunación.
 
 
 1. El Personal registra una dosis aplicada a un Usuario.
