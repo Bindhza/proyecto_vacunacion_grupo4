@@ -124,7 +124,7 @@ class Historial(models.Model):
     vacuna = models.ForeignKey('vacunas.Vacuna', on_delete=models.PROTECT) 
     
     # Que personal aplicó la vacuna
-    personal_a_cargo = models.ForeignKey('Personal', on_delete=models.SET_NULL, null=True) 
+    personal_a_cargo = models.ForeignKey('Personal', on_delete=models.SET_NULL, null=True, related_name='vacunaciones_realizadas') 
     
     # Guardamos fecha y hora exacta en que se crea el registro
     fecha = models.DateField(auto_now_add=True)

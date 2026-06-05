@@ -1,3 +1,4 @@
+import pathlib
 from django.urls.conf import include
 from django.urls import path
 from rest_framework.routers import DefaultRouter
@@ -20,4 +21,6 @@ urlpatterns = [
     path('', include(routerVacunacion.urls)),
     path('', include(routerUsuarioRecibioVacuna.urls)),
     path('', include(routerVacunacionPorCampaña.urls)),
+    path('enviar_formulario/', views.CrearVacunacionRegistroAPIView.as_view(), name='enviar_formulario'),
+    path('validar_personal/', views.ValidarPersonalAPIView.as_view(), name='validar_personal'),
 ]
