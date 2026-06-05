@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
 import CampoTextoOptions from './components/CampoTextoOptions'
@@ -8,23 +8,30 @@ function FormularioVacunacion() {
     //almacenamiento del estado de datos
     //vacunacion
 
+    //se obtiene el centro de vacunacion desde el formulario de validacion
+    const location = useLocation()
+    const centro_inicial = location.state?.centro_vacunacion || ''
+
     const [id_vacunacion, setIdVacunacion] = useState('')
     const [fecha_vacunacion, setFechaVacunacion] = useState('')
     const [observaciones, setObservaciones] = useState('')
     const [vacunas, setVacunas] = useState([])
     const [vacuna_aplicada, setVacunaAplicada] = useState('')
 
-    const [centro_vacunacion, setCentroVacunacion] = useState('')
+    const [centro_vacunacion, setCentroVacunacion] = useState(centro_inicial)
     //el centro se extrae del funcionario que lo vacuna que despues sera entregado
     //de momento dejar asi
 
     const [id_campania, setIdCampaña] = useState('')
-    //la campaña se puede extraer de la vacuna
-    //de momento dejar asi
-
+    //la campaña se extrae de la vacuna
 
     //usuario_recibio_vacuna
     const [rut_vacunado, setRutVacunado] = useState('')
+
+    //sincronizamos la campaña con la vacuna seleccionada
+    useEffect(() => {
+        setIdCampaña(vacuna_aplicada)
+    }, [vacuna_aplicada])
 
 
     //realizamos la peticion GET para obtener las vacunas
@@ -49,8 +56,8 @@ function FormularioVacunacion() {
             observaciones: observaciones,
             vacuna_aplicada: parseInt(vacuna_aplicada),
             id_usuario: rut_vacunado,
-            centro_vacunacion: null, // se aplicará después
-            id_campaña: null         // se agregará después
+            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null, // se aplicará después
+            id_campaña: id_campania ? parseInt(id_campania) : null
         }
 
         //peticion POST para guardar la vacunacion realizada

@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include(routerUsuarioRecibioVacuna.urls)),
     path('', include(routerVacunacionPorCampaña.urls)),
     path('enviar_formulario/', views.CrearVacunacionRegistroAPIView.as_view(), name='enviar_formulario'),
+    path('validar_personal/', views.ValidarPersonalAPIView.as_view(), name='validar_personal'),
 ]

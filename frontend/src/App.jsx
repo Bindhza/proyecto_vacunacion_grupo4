@@ -3,6 +3,7 @@ import MenuPrincipal from './MenuPrincipal'
 import FormularioVacuna from './FormularioVacunas'
 import FormularioVacunacion from './FormularioVacunacion'
 import FormularioCentro from './FomularioCentro'
+import ValidacionRutPersonal from './ValidacionRutPersonal'
 
 function App() {
   return (
@@ -14,8 +15,11 @@ function App() {
         {/* ruta del formulario para agregar una vacuna */}
         <Route path="/formulario/vacuna" element={<FormularioVacuna />} />
 
-        {/* ruta del formulario para agregar a una persona vacunada */}
-        <Route path="/formulario/vacunacion" element={<FormularioVacunacion />} />
+        {/* ruta de la validación del rut del personal de la salud */}
+        <Route path="/formulario/vacunacion" element={<ValidacionRutPersonal />} />
+
+        {/* ruta del formulario para registrar la vacunacion */}
+        <Route path="/formulario/vacunacion/registro" element={<FormularioVacunacion />} />
 
         {/* ruta del formulario para agregar un centro */}
         <Route path="/formulario/centro" element={<FormularioCentro />} />
