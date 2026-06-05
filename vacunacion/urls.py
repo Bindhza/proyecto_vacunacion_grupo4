@@ -16,7 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from manejo_usuarios.views import login_view
+from campana_vacunacion.views import get_campanas, get_centros, get_citas, agendar_cita
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/login/', login_view, name='login'),
+    path('api/campanas/', get_campanas, name='campanas'),
+    path('api/campanas/<int:campana_id>/centros/', get_centros, name='centros'),
+    path('api/campanas/<int:campana_id>/centros/<int:centro_id>/citas/', get_citas, name='citas'),
+    path('api/agendar/', agendar_cita, name='agendar'),
 ]

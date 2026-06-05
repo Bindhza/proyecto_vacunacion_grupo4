@@ -83,9 +83,9 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def obtener_historial(self):
         return self.historial_set.all().order_by('fecha', 'hora')
 
+    #Devuelve una lista con instancias de historial asociadas al usuario
     @property
     def dosis_recibidas(self):
-        """Devuelve una lista con instancias de historial asociadas al usuario."""
         return list(self.historial_set.all().select_related('vacuna'))
 
 
