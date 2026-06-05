@@ -4,6 +4,14 @@ import ButtonMenuPrincipal from './components/ButtonMenuPrincipal'
 function MenuPrincipal() {
   return (
     <div style={{ padding: '40px', fontFamily: 'Arial, sans-serif', textAlign: 'center' }}>
+      
+      {/* Botón para volver al selector de interfaces */}
+      <Link to="/">
+        <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
+          ← Volver a Selección de Interfaz
+        </button>
+      </Link>
+
       <h1>Menú Principal</h1>
       <p>Bienvenido al sistema de control de vacunación.</p>
 

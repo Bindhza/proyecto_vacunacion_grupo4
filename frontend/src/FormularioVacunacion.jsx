@@ -81,7 +81,7 @@ function FormularioVacunacion() {
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
 
             {/* Botón para volver al menú principal */}
-            <Link to="/">
+            <Link to="/sistema">
                 <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
                     ← Volver al Menú Principal
                 </button>
