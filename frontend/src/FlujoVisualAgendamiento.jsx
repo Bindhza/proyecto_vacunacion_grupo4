@@ -12,6 +12,12 @@ function FlujoVisualAgendamiento() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
       setStep(1); // Si ya está logueado, saltar el login
+      
+      // Obtener campañas automáticamente
+      fetch(`${API_BASE}/campanas/`)
+        .then(res => res.json())
+        .then(data => setCampanas(data))
+        .catch(err => console.error('Error cargando campañas', err));
     }
   }, []);
 
@@ -63,17 +69,7 @@ function FlujoVisualAgendamiento() {
     setLoading(false);
   };
 
-  const fetchCampanas = async (rutToCheck = null) => {
-    const currentRut = rutToCheck || user?.rut;
-    if (currentRut === '11111111-1') {
-      setCampanas([
-        { id: 1, nombre: 'Campaña Invierno 2026', descripcion: 'Vacunación contra la Influenza y COVID-19' },
-        { id: 2, nombre: 'Vacunación Escolar', descripcion: 'Dosis de refuerzo para estudiantes' }
-      ]);
-      setStep(1);
-      return;
-    }
-
+  const fetchCampanas = async () => {
     try {
       const res = await fetch(`${API_BASE}/campanas/`);
       const data = await res.json();
@@ -84,21 +80,11 @@ function FlujoVisualAgendamiento() {
     }
   };
 
+
+
   const handleSelectCampana = async (campana) => {
     setSelectedCampana(campana);
     setLoading(true);
-    
-    if (user?.rut === '11111111-1') {
-      setTimeout(() => {
-        setCentros([
-          { id: 1, nombre: 'Cesfam San Francisco', direccion: 'Av. Las Flores 123, Comuna Central' },
-          { id: 2, nombre: 'Hospital Regional', direccion: 'Calle Esperanza 456, Región Norte' }
-        ]);
-        setStep(2);
-        setLoading(false);
-      }, 600); // Simulamos retraso de red
-      return;
-    }
 
     try {
       const res = await fetch(`${API_BASE}/campanas/${campana.id}/centros/`);
@@ -115,19 +101,6 @@ function FlujoVisualAgendamiento() {
     setSelectedCentro(centro);
     setLoading(true);
 
-    if (user?.rut === '11111111-1') {
-      setTimeout(() => {
-        setCitas([
-          { id: 101, fecha: '2026-06-10', hora: '09:00' },
-          { id: 102, fecha: '2026-06-10', hora: '10:30' },
-          { id: 103, fecha: '2026-06-11', hora: '14:00' }
-        ]);
-        setStep(3);
-        setLoading(false);
-      }, 600);
-      return;
-    }
-
     try {
       const res = await fetch(`${API_BASE}/campanas/${selectedCampana.id}/centros/${centro.id}/citas/`);
       const data = await res.json();
@@ -142,14 +115,6 @@ function FlujoVisualAgendamiento() {
   const handleAgendar = async (cita) => {
     setSelectedCita(cita);
     setLoading(true);
-
-    if (user?.rut === '11111111-1') {
-      setTimeout(() => {
-        setStep(4);
-        setLoading(false);
-      }, 800);
-      return;
-    }
 
     try {
       const res = await fetch(`${API_BASE}/agendar/`, {
@@ -178,6 +143,10 @@ function FlujoVisualAgendamiento() {
             <strong style={{ fontSize: '1.1rem' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
           </div>
           <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <Link to="/perfil" style={{ textDecoration: 'none' }}>
+              <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)' }}>Mi Perfil</button>
+            </Link>
+
             {user.rol === 'Personal' && (
               <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }}>
                 <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)' }}>Formulario de Vacunación</button>
@@ -185,8 +154,11 @@ function FlujoVisualAgendamiento() {
             )}
             {user.rol === 'Admin' && (
               <>
+                <Link to="/formulario/campana" style={{ textDecoration: 'none' }}>
+                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #10b981' }}>Campañas</button>
+                </Link>
                 <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }}>
-                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6' }}>Formulario de Vacunas</button>
+                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6' }}>Vacunas</button>
                 </Link>
                 <Link to="/formulario/centro" style={{ textDecoration: 'none' }}>
                   <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)' }}>Centro de Vacunación</button>

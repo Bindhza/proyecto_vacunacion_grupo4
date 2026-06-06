@@ -4,6 +4,8 @@ import MenuPrincipal from './MenuPrincipal'
 import FormularioVacuna from './FormularioVacunas'
 import FormularioVacunacion from './FormularioVacunacion'
 import FormularioCentro from './FomularioCentro'
+import FormularioCampana from './FormularioCampana'
+import PerfilUsuario from './PerfilUsuario'
 
 import FlujoVisualAgendamiento from './FlujoVisualAgendamiento'
 
@@ -22,6 +24,12 @@ function App() {
 
         {/* ruta del formulario para agregar un centro */}
         <Route path="/formulario/centro" element={<FormularioCentro />} />
+
+        {/* ruta del formulario para agregar campañas */}
+        <Route path="/formulario/campana" element={<FormularioCampana />} />
+
+        {/* ruta para ver el perfil y citas agendadas */}
+        <Route path="/perfil" element={<PerfilUsuario />} />
       </Routes>
     </Router>
   )

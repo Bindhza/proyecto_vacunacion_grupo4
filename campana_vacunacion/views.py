@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
 from .models import Campaña, CentroVacunacion, Cita
-from .serializers import CentroVacunacionSerializer
-from manejo_usuarios.models import Paciente
+from .serializers import CentroVacunacionSerializer, CampañaSerializer
+from manejo_usuarios.models import Paciente, Usuario
 
 # Create your views here.
 
@@ -13,7 +13,11 @@ class CentroVacunacionViewSet(viewsets.ModelViewSet):
     queryset = CentroVacunacion.objects.all()
     serializer_class = CentroVacunacionSerializer
 
+class CampañaViewSet(viewsets.ModelViewSet):
+    queryset = Campaña.objects.all()
+    serializer_class = CampañaSerializer
 
+# Serie de getter usados para mostrar informacion en el frontend
 def get_campanas(request):
     campanas = Campaña.objects.all()
     vigentes = [c for c in campanas if c.verificar_vigencia()]
@@ -57,3 +61,32 @@ def agendar_cita(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Metodo no permitido"}, status=405)
+
+def get_citas_paciente(request, rut):
+    try:
+        usuario = Usuario.objects.get(rut=rut)
+        
+        citas_data = []
+        if usuario.es_paciente:
+            citas = Cita.objects.filter(paciente_citado=usuario.paciente).select_related('campana', 'centro_vacunacion')
+            citas_data = [{
+                "id": c.id_cita,
+                "fecha": str(c.fecha_cita),
+                "hora": str(c.hora_cita),
+                "campana": c.campana.nombre_campaña if c.campana else "Sin campaña",
+                "centro": c.centro_vacunacion.nombre_centro if c.centro_vacunacion else "Sin centro",
+                "direccion": c.centro_vacunacion.obtener_direccion_completa_centro() if c.centro_vacunacion else "Dirección no registrada"
+            } for c in citas]
+        
+        perfil = {
+            "rut": usuario.rut,
+            "nombres": usuario.nombres,
+            "apellidos": usuario.apellidos,
+            "correo": usuario.correo,
+            "fecha_nacimiento": str(usuario.fecha_nacimiento) if usuario.fecha_nacimiento else "No registrada",
+            "telefono": usuario.paciente.telefono if usuario.es_paciente else "No aplica"
+        }
+        
+        return JsonResponse({"perfil": perfil, "citas": citas_data}, safe=False)
+    except Usuario.DoesNotExist:
+        return JsonResponse({"error": "Usuario no encontrado"}, status=404)

@@ -11,6 +11,9 @@ function FormularioCentro() {
   const [comunaCentro, setComunaCentro] = useState('')
   const [regionCentro, setRegionCentro] = useState('')
 
+  const user = JSON.parse(localStorage.getItem('user'))
+  const isAdmin = user && user.rol === 'Admin'
+
   // Petición GET al cargar la página para listar los centros
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/api/centro/')
@@ -21,6 +24,19 @@ function FormularioCentro() {
         console.error('Error al cargar datos de centros:', error)
       })
   }, [])
+
+  const handleDelete = (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este centro?')) {
+      axios.delete(`http://127.0.0.1:8000/api/centro/${id}/`)
+        .then(() => {
+          setCentros(centros.filter(c => c.id_centro !== id))
+        })
+        .catch(error => {
+          alert('Error al eliminar el centro. Puede que tenga citas o personal asociado.')
+          console.error(error)
+        })
+    }
+  }
 
   //petición POST al enviar el formulario para crear un centro
   const handleSubmit = (e) => {
@@ -120,9 +136,19 @@ function FormularioCentro() {
         ) : (
           <div>
             {centros.map((c) => (
-              <div key={c.id_centro} className="list-item">
-                <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_centro}</h3>
-                <p>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
+              <div key={c.id_centro} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_centro}</h3>
+                  <p style={{ margin: 0 }}>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
+                </div>
+                {isAdmin && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleDelete(c.id_centro); }}
+                    style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}
+                  >
+                    Eliminar
+                  </button>
+                )}
               </div>
             ))}
           </div>
