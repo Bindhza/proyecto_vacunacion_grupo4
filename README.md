@@ -7,6 +7,15 @@ VacunApp es una plataforma web moderna e integral diseñada para gestionar y org
 El proyecto está construido con un **Backend en Django (Python)** y un **Frontend en React (Vite)**, utilizando una arquitectura desacoplada comunicada a través de una API REST, y destacando por una interfaz gráfica estilo **Glassmorphism** limpia y premium.
 
 ---
+## Integrantes
+
+- **Bryan Aguirre Fuentes**
+- **Camila García Torres** 
+- **José Gonzáles Aguayo**
+- **Benjamín López Hermosilla**
+- **Benjamin Poblete Castillo**
+
+---
 
 ## Guía de Instalación y Ejecución
 
