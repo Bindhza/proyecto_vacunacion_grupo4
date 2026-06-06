@@ -1,4 +1,4 @@
-# VacunApp - Sistema de Gestión de Vacunación 💉
+# VacunApp - Sistema de Gestión de Vacunación
 
 VacunApp es una plataforma web moderna e integral diseñada para gestionar y organizar campañas de vacunación. El sistema permite administrar pacientes, personal de salud, campañas, centros de vacunación y citas, facilitando el proceso completo desde la llegada de la vacuna hasta su aplicación.
 
@@ -6,37 +6,10 @@ El proyecto está construido con un **Backend en Django (Python)** y un **Fronte
 
 ---
 
-## 🛠️ Tecnologías y Dependencias
+## Guía de Instalación y Ejecución
 
-### Backend (Python / Django)
-- **Python** (versión 3.9 o superior)
-- **Django** (Framework web principal)
-- **Django REST Framework** (Para la creación de la API)
-- **django-cors-headers** (Para permitir la conexión con el Frontend)
-- **Base de Datos:** SQLite3 (incluida por defecto, no requiere instalación adicional)
+### 1. Configurar el Backend (Django)
 
-### Frontend (Node.js / React)
-- **Node.js** (versión 18 o superior recomendada)
-- **React** (^19.2)
-- **Vite** (^8.0) (Empaquetador y servidor de desarrollo)
-- **React Router DOM** (^7.16) (Para la navegación entre páginas)
-- **Axios** (^1.17) (Para las peticiones HTTP a la API)
-
----
-
-## 🚀 Guía de Instalación y Ejecución
-
-Sigue estos pasos para poner a correr el proyecto en tu máquina local.
-
-### 1. Clonar el repositorio
-```bash
-git clone <url_del_repositorio>
-cd proyecto_vacunacion_grupo4
-```
-
-### 2. Configurar el Backend (Django)
-Asegúrate de estar en la raíz del proyecto. Es recomendable usar un entorno virtual (opcional pero recomendado):
-```bash
 # Crear e iniciar entorno virtual (Opcional)
 python3 -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
@@ -50,12 +23,9 @@ python3 manage.py migrate
 
 # Iniciar el servidor local de Django
 python3 manage.py runserver
-```
-> El backend quedará corriendo en `http://localhost:8000` o `http://127.0.0.1:8000`
 
-### 3. Configurar el Frontend (React)
-Abre **una nueva terminal** y navega a la carpeta del frontend:
-```bash
+### 2. Configurar el Frontend (React)
+
 cd frontend
 
 # Instalar las dependencias de Node.js
@@ -63,19 +33,23 @@ npm install
 
 # Iniciar el servidor de desarrollo de React
 npm run dev
-```
-> El frontend quedará corriendo normalmente en `http://localhost:5173` o el puerto que te indique Vite.
 
 ---
 
-## 🌟 Características Principales
+## Características Principales
 
-- **Diseño Moderno:** Interfaz de usuario con estética "Glassmorphism", totalmente responsiva y fácil de usar.
+- **Diseño Moderno:** Interfaz de usuario con estética visual cuidada totalmente responsiva y fácil de usar.
 - **Roles Definidos:** Diferentes niveles de acceso (Paciente, Personal, Admin).
 - **Gestión Completa:** CRUD interactivo para Campañas, Centros de Vacunación y Vacunas (Solo Admins).
 - **Flujo de Agendamiento:** Proceso paso a paso y validado para agendar una cita.
 - **Perfil de Usuario:** Visualización de información personal y citas vigentes para cualquier rol registrado.
 - **Base de Datos Segura:** Las contraseñas están almacenadas mediante hashing nativo de Django, sin datos confidenciales expuestos en código.
 
+## Acerca del diseño
+
+Esta implementacion esta diseñada en base a una serie de diagramas que fueron elaborados con el fin de guiar el desarrollo del software, dicho diseño puede ser encontrado dentro de la carpeta diagramas de este mismo repositorio, donde se pueden consultar las secuencias logicas, la organizacion del sistema y los modelos de datos, asi como sus justificaciones, ademas de una descripción detallada de la seguridad implementada en la aplicacion.
+
+## Implementacion Basica
+Esta primera implementacion se considera una version muy rudimentaria de lo que seria la version finalizada del programa, hay muchos detalles que no estan completados al 100 como podria ser, la implementacion de notificaciones, un dashboard para administradores o personal de salud, un mejor sistema de agendamiento, con horas, stock visible y cupos, esto y diversos otros detalles seran barajados e implementados en futuras versiones.
 ---
-*Proyecto desarrollado para la asignatura de Ingeniería de Software.*
+*Proyecto desarrollado para la asignatura Diseño de Software.*
