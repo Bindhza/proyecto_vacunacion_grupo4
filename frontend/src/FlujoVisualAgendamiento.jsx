@@ -42,21 +42,6 @@ function FlujoVisualAgendamiento() {
     setLoading(true);
     setError('');
 
-    // Credenciales constantes para pruebas cuando la base de datos está vacía
-    if (rut === '11111111-1' && password === 'admin') {
-      const demoUser = {
-        rut: '11111111-1',
-        nombres: 'Usuario',
-        apellidos: 'De Prueba',
-        correo: 'prueba@test.com',
-        rol: 'Paciente'
-      };
-      setUser(demoUser);
-      localStorage.setItem('user', JSON.stringify(demoUser));
-      fetchCampanas('11111111-1');
-      setLoading(false);
-      return;
-    }
 
     try {
       const res = await fetch(`${API_BASE}/login/`, {

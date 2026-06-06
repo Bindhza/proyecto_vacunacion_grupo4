@@ -21,40 +21,6 @@ def login_view(request):
             if not rut or not password:
                 return JsonResponse({'error': 'Faltan credenciales (rut y password)'}, status=400)
 
-            # Intercepción para credenciales estáticas de prueba (Demostración)
-            if rut == '11111111-1' and password == 'admin':
-                return JsonResponse({
-                    'mensaje': 'Login exitoso (Prueba)',
-                    'usuario': {
-                        'rut': '11111111-1',
-                        'nombres': 'Paciente',
-                        'apellidos': 'De Prueba',
-                        'correo': 'paciente@prueba.com',
-                        'rol': 'Paciente'
-                    }
-                })
-            elif rut == '22222222-2' and password == 'admin':
-                return JsonResponse({
-                    'mensaje': 'Login exitoso (Prueba)',
-                    'usuario': {
-                        'rut': '22222222-2',
-                        'nombres': 'Personal',
-                        'apellidos': 'De Prueba',
-                        'correo': 'personal@prueba.com',
-                        'rol': 'Personal'
-                    }
-                })
-            elif rut == '33333333-3' and password == 'admin':
-                return JsonResponse({
-                    'mensaje': 'Login exitoso (Prueba)',
-                    'usuario': {
-                        'rut': '33333333-3',
-                        'nombres': 'Admin',
-                        'apellidos': 'De Prueba',
-                        'correo': 'admin@prueba.com',
-                        'rol': 'Admin'
-                    }
-                })
 
             # authenticate hace una consulta SQL a la base de datos para verificar que existe un usuario con ese RUT y que su contraseña encriptada coincide
             user = authenticate(request, username=rut, password=password)

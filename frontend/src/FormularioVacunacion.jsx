@@ -8,9 +8,9 @@ function FormularioVacunacion() {
     //almacenamiento del estado de datos
     //vacunacion
 
-    //se obtiene el centro de vacunacion desde el formulario de validacion
-    const location = useLocation()
-    const centro_inicial = location.state?.centro_vacunacion || ''
+    //se obtiene el usuario logueado del localStorage
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const rut_personal = storedUser ? storedUser.rut : '';
 
     const [id_vacunacion, setIdVacunacion] = useState('')
     const [fecha_vacunacion, setFechaVacunacion] = useState('')
@@ -18,7 +18,7 @@ function FormularioVacunacion() {
     const [vacunas, setVacunas] = useState([])
     const [vacuna_aplicada, setVacunaAplicada] = useState('')
 
-    const [centro_vacunacion, setCentroVacunacion] = useState(centro_inicial)
+    const [centro_vacunacion, setCentroVacunacion] = useState('')
     //el centro se extrae del funcionario que lo vacuna que despues sera entregado
     //de momento dejar asi
 
@@ -33,6 +33,20 @@ function FormularioVacunacion() {
         setIdCampaña(vacuna_aplicada)
     }, [vacuna_aplicada])
 
+    // Autovalidar el centro del personal logueado
+    useEffect(() => {
+        if (rut_personal) {
+            axios.post('http://127.0.0.1:8000/api/validar_personal/', { rut: rut_personal })
+                .then(response => {
+                    if (response.data.existe) {
+                        setCentroVacunacion(response.data.centro_vacunacion);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al validar el centro del personal:', error);
+                });
+        }
+    }, [rut_personal])
 
     //realizamos la peticion GET para obtener las vacunas
     useEffect(() => {
