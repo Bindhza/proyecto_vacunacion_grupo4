@@ -51,7 +51,16 @@ def agendar_cita(request):
             cita_id = body.get('cita_id')
             rut_paciente = body.get('rut_paciente')
 
-            paciente_obj = Paciente.objects.get(rut=rut_paciente)
+            try:
+                paciente_obj = Paciente.objects.get(rut=rut_paciente)
+            except Paciente.DoesNotExist:
+                # Si el usuario es Personal o Admin, no existe en la tabla Paciente.
+                # Lo extendemos insertando su registro en la tabla hija Paciente.
+                from django.db import connection
+                with connection.cursor() as cursor:
+                    cursor.execute("INSERT INTO manejo_usuarios_paciente (usuario_ptr_id, telefono) VALUES (%s, 0)", [rut_paciente])
+                paciente_obj = Paciente.objects.get(rut=rut_paciente)
+
             cita = Cita.objects.get(id_cita=cita_id)
 
             if cita.agendar(paciente_obj):
