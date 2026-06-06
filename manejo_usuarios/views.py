@@ -28,12 +28,12 @@ def login_view(request):
             if user is not None:
                 # Determinamos el rol del usuario
                 rol = 'Usuario Base'
-                if user.es_paciente:
-                    rol = 'Paciente'
+                if user.es_admin:
+                    rol = 'Admin'
                 elif user.es_personal:
                     rol = 'Personal'
-                elif user.es_admin:
-                    rol = 'Admin'
+                elif user.es_paciente:
+                    rol = 'Paciente'
 
                 # Si las credenciales son correctas, registramos la sesion
                 login(request, user) 
@@ -131,16 +131,21 @@ def perfil_usuario(request):
             'historial_vacunas': historial_serializado
         }
 
-        if usuario.es_paciente:
-            datos['rol'] = 'Paciente'
-            datos['telefono'] = usuario.paciente.telefono
+        if usuario.es_admin:
+            datos['rol'] = 'Admin'
+            # Aunque sea admin, si también es paciente, le pasamos el teléfono para que su perfil no se rompa
+            if usuario.es_paciente:
+                datos['telefono'] = usuario.paciente.telefono
         elif usuario.es_personal:
             datos['rol'] = 'Personal'
             datos['id_personal'] = usuario.personal.id_personal
             if usuario.personal.centro_vacunacion:
                 datos['centro_vacunacion_id'] = usuario.personal.centro_vacunacion.id_centro
-        elif usuario.es_admin:
-            datos['rol'] = 'Admin'
+            if usuario.es_paciente:
+                datos['telefono'] = usuario.paciente.telefono
+        elif usuario.es_paciente:
+            datos['rol'] = 'Paciente'
+            datos['telefono'] = usuario.paciente.telefono
 
         return JsonResponse({'usuario': datos})
 
