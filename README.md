@@ -11,7 +11,7 @@ El proyecto está construido con un **Backend en Django (Python)** y un **Fronte
 
 - **Bryan Aguirre Fuentes**
 - **Camila García Torres** 
-- **José Gonzáles Aguayo**
+- **José González Aguayo**
 - **Benjamín López Hermosilla**
 - **Benjamin Poblete Castillo**
 
