@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const API_BASE = 'http://localhost:8000/api';
@@ -6,7 +6,22 @@ const API_BASE = 'http://localhost:8000/api';
 function FlujoVisualAgendamiento() {
   const [step, setStep] = useState(0); // 0: Login, 1: Campaña, 2: Centro, 3: Horario, 4: Success
   const [user, setUser] = useState(null);
-  
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setStep(1); // Si ya está logueado, saltar el login
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    setStep(0);
+    setRut('');
+    setPassword('');
+  };
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
   
@@ -29,12 +44,15 @@ function FlujoVisualAgendamiento() {
 
     // Credenciales constantes para pruebas cuando la base de datos está vacía
     if (rut === '11111111-1' && password === 'admin') {
-      setUser({
+      const demoUser = {
         rut: '11111111-1',
         nombres: 'Usuario',
         apellidos: 'De Prueba',
-        correo: 'prueba@test.com'
-      });
+        correo: 'prueba@test.com',
+        rol: 'Paciente'
+      };
+      setUser(demoUser);
+      localStorage.setItem('user', JSON.stringify(demoUser));
       fetchCampanas('11111111-1');
       setLoading(false);
       return;
@@ -49,6 +67,7 @@ function FlujoVisualAgendamiento() {
       const data = await res.json();
       if (res.ok) {
         setUser(data.usuario);
+        localStorage.setItem('user', JSON.stringify(data.usuario));
         fetchCampanas();
       } else {
         setError(data.error || 'Credenciales inválidas');
@@ -167,26 +186,36 @@ function FlujoVisualAgendamiento() {
 
   return (
     <div className="bpmn-interface-root">
-      <div className="glass-container">
-        {/* Botón para volver a la página de inicio */}
-        <div style={{ textAlign: 'left', marginBottom: '15px' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <button style={{ 
-              background: 'transparent', 
-              border: '1px solid var(--glass-border)', 
-              color: 'var(--text-muted)', 
-              padding: '8px 16px', 
-              borderRadius: '8px', 
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              width: 'auto',
-              marginTop: 0,
-              display: 'inline-block'
-            }}>
-              ← Página de Inicio
+      {/* Navegación superior si el usuario está logueado */}
+      {step > 0 && user && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)', zIndex: 10 }}>
+          <div>
+            <strong style={{ fontSize: '1.1rem' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
+          </div>
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            {user.rol === 'Personal' && (
+              <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }}>
+                <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)' }}>Formulario de Vacunación</button>
+              </Link>
+            )}
+            {user.rol === 'Admin' && (
+              <>
+                <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }}>
+                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6' }}>Formulario de Vacunas</button>
+                </Link>
+                <Link to="/formulario/centro" style={{ textDecoration: 'none' }}>
+                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)' }}>Centro de Vacunación</button>
+                </Link>
+              </>
+            )}
+            <button onClick={handleLogout} style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: '#ef4444', border: 'none' }}>
+              Cerrar Sesión
             </button>
-          </Link>
+          </div>
         </div>
+      )}
+
+      <div className="glass-container" style={{ marginTop: step > 0 ? '80px' : '0' }}>
 
         {step === 0 && (
           <form onSubmit={handleLogin}>

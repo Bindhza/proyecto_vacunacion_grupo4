@@ -55,9 +55,9 @@ function FormularioCentro() {
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       
       {/* Botón para volver al menú principal */}
-      <Link to="/sistema">
+      <Link to="/">
         <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
-          ← Volver al Menú Principal
+          ← Volver
         </button>
       </Link>
 

@@ -11,14 +11,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* ruta de la página de inicio (selección de interfaz) */}
-        <Route path="/" element={<PaginaInicio />} />
-
-        {/* ruta del menú principal (Interfaz 1) */}
-        <Route path="/sistema" element={<MenuPrincipal />} />
-
-        {/* ruta del agendamiento visual (Interfaz 2) */}
-        <Route path="/agendamiento" element={<FlujoVisualAgendamiento />} />
+        {/* ruta principal (Login integrado y Agendamiento) */}
+        <Route path="/" element={<FlujoVisualAgendamiento />} />
 
         {/* ruta del formulario para agregar una vacuna */}
         <Route path="/formulario/vacuna" element={<FormularioVacuna />} />
