@@ -70,7 +70,7 @@ Esta implementacion esta diseñada en base a una serie de diagramas que fueron e
 
 Esta primera implementacion se considera una version muy rudimentaria de lo que seria la version finalizada del programa, hay muchos detalles que no estan completados al 100 como podria ser, la implementacion de notificaciones, un dashboard para administradores o personal de salud, un mejor sistema de agendamiento, con horas, stock visible y cupos, esto y diversos otros detalles seran barajados e implementados en futuras versiones.
 
-## Implementacion Basica
+## Credenciales de prueba
 
 Paciente---> Rut : 11111111-1
 
