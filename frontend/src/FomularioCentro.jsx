@@ -52,20 +52,33 @@ function FormularioCentro() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      
-      {/* Botón para volver al menú principal */}
-      <Link to="/">
-        <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
-          ← Volver
-        </button>
-      </Link>
+    <div className="bpmn-interface-root">
+      <div className="glass-container">
+        {/* Botón para volver al menú principal */}
+        <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <button style={{ 
+              background: 'transparent', 
+              border: '1px solid var(--glass-border)', 
+              color: 'var(--text-muted)', 
+              padding: '8px 16px', 
+              borderRadius: '8px', 
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              width: 'auto',
+              marginTop: 0,
+              display: 'inline-block'
+            }}>
+              ← Volver
+            </button>
+          </Link>
+        </div>
 
-      <h1>Gestión de Centros de Vacunación</h1>
+      <h2>Gestión de Centros</h2>
 
       {/* Formulario de Registro */}
-      <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
-        <h3>Registrar Nuevo Centro</h3>
+      <div>
+        <p className="subtitle">Registrar Nuevo Centro</p>
         <form onSubmit={handleSubmit}>
           <CampoTextoInput
             mensaje="ID Centro"
@@ -100,19 +113,21 @@ function FormularioCentro() {
       </div>
 
       {/* Listado de Resultados */}
-      <div>
-        <h3>Lista de Centros en el Sistema</h3>
+      <div style={{ marginTop: '30px' }}>
+        <h3 style={{ marginBottom: '15px', color: 'var(--text-main)', textAlign: 'left' }}>Lista de Centros en el Sistema</h3>
         {centros.length === 0 ? (
-          <p>No hay centros de vacunación en el sistema.</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No hay centros de vacunación en el sistema.</p>
         ) : (
-          <ul>
+          <div>
             {centros.map((c) => (
-              <li key={c.id_centro} style={{ marginBottom: '5px' }}>
-                <strong>ID:</strong> {c.id_centro} | <strong>Nombre:</strong> {c.nombre_centro} | <strong>Ubicación:</strong> {c.comuna_centro}, {c.region_centro}
-              </li>
+              <div key={c.id_centro} className="list-item">
+                <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_centro}</h3>
+                <p>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
+      </div>
       </div>
     </div>
   )

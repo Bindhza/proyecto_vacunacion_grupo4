@@ -109,7 +109,9 @@ ul {
   color: var(--text-muted);
 }
 
-.bpmn-interface-root input {
+.bpmn-interface-root input,
+.bpmn-interface-root select,
+.bpmn-interface-root textarea {
   width: 100%;
   padding: 12px 16px;
   border-radius: 12px;
@@ -123,9 +125,16 @@ ul {
   margin-left: 0; /* Override main input margins */
 }
 
-.bpmn-interface-root input:focus {
+.bpmn-interface-root input:focus,
+.bpmn-interface-root select:focus,
+.bpmn-interface-root textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.bpmn-interface-root select option {
+  background: var(--bg-color);
+  color: var(--text-main);
 }
 
 .bpmn-interface-root button {

@@ -1,6 +1,6 @@
 function CampoTextoInput(props) {
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div className="form-group">
       {/*etiqueta asociada al campo de texto*/}
       <label>{props.mensaje}</label>
       {/*entrada*/}

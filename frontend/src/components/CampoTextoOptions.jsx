@@ -1,6 +1,6 @@
 function CampoTextoOptions(props) {
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div className="form-group">
       <label> {props.mensaje} </label>
       <select
         value={props.valor_almacenado}

@@ -78,20 +78,33 @@ function FormularioVacunacion() {
     }
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="bpmn-interface-root">
+            <div className="glass-container">
+                {/* Botón para volver al menú principal */}
+                <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+                    <Link to="/" style={{ textDecoration: 'none' }}>
+                        <button style={{ 
+                            background: 'transparent', 
+                            border: '1px solid var(--glass-border)', 
+                            color: 'var(--text-muted)', 
+                            padding: '8px 16px', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            width: 'auto',
+                            marginTop: 0,
+                            display: 'inline-block'
+                        }}>
+                            ← Volver
+                        </button>
+                    </Link>
+                </div>
 
-            {/* Botón para volver al menú principal */}
-            <Link to="/">
-                <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
-                    ← Volver
-                </button>
-            </Link>
-
-            <h1>Gestión de Vacunacion</h1>
+            <h2>Gestión de Vacunación</h2>
 
             {/* formulario de registro de vacunacion de usuarios */}
-            <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
-                <h3>Registrar Vacunacion</h3>
+            <div>
+                <p className="subtitle">Registrar Vacunación</p>
                 <form onSubmit={handleSubmit}>
                     {/* componente CampoTexto */}
                     <CampoTextoInput
@@ -126,21 +139,22 @@ function FormularioVacunacion() {
                     />
 
                     {/*campo de texto para observaciones*/}
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{
-                            verticalAlign: 'top'
-                        }}>
-
-                            Observaciones: </label>
+                    <div className="form-group">
+                        <label>Observaciones: </label>
                         <textarea
-                            type="text"
                             placeholder="Ej. Sin observaciones"
                             value={observaciones}
                             onChange={(e) => setObservaciones(e.target.value)}
                             style={{
-                                width: '80%',
+                                width: '100%',
                                 height: '100px',
-                                padding: '10px',
+                                padding: '12px 16px',
+                                borderRadius: '12px',
+                                border: '1px solid var(--glass-border)',
+                                background: 'rgba(15, 23, 42, 0.5)',
+                                color: 'white',
+                                fontFamily: "'Outfit', sans-serif",
+                                outline: 'none',
                                 resize: 'vertical',
                                 boxSizing: 'border-box'
                             }}
@@ -149,6 +163,7 @@ function FormularioVacunacion() {
                     </div>
                     <button type="submit">Guardar Usuario Vacunado</button>
                 </form>
+            </div>
             </div>
         </div>
     )

@@ -35,20 +35,33 @@ function ValidacionRutPersonal() {
     }
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="bpmn-interface-root">
+            <div className="glass-container">
+                {/* Botón para volver al menú principal */}
+                <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+                    <Link to="/" style={{ textDecoration: 'none' }}>
+                        <button style={{ 
+                            background: 'transparent', 
+                            border: '1px solid var(--glass-border)', 
+                            color: 'var(--text-muted)', 
+                            padding: '8px 16px', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            width: 'auto',
+                            marginTop: 0,
+                            display: 'inline-block'
+                        }}>
+                            ← Volver
+                        </button>
+                    </Link>
+                </div>
 
-            {/* Botón para volver al menú principal */}
-            <Link to="/">
-                <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
-                    ← Volver
-                </button>
-            </Link>
-
-            <h1>Validación de Personal de la Salud</h1>
+            <h2>Validación de Personal de la Salud</h2>
 
             {/* formulario de validacion del rut de personal */}
-            <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
-                <h3>Ingrese su RUT para continuar</h3>
+            <div>
+                <p className="subtitle">Ingrese su RUT para continuar</p>
                 <form onSubmit={handleValidar}>
                     {/* componente CampoTexto */}
                     <CampoTextoInput
@@ -58,8 +71,9 @@ function ValidacionRutPersonal() {
                         valor_almacenado={rut_personal}
                         onChange={(val) => setRutPersonal(val)}
                     />
-                    <button type="submit" style={{ cursor: 'pointer' }}>Ingresar al Formulario</button>
+                    <button type="submit">Ingresar al Formulario</button>
                 </form>
+            </div>
             </div>
         </div>
     )

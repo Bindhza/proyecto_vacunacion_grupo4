@@ -48,20 +48,33 @@ function FormularioVacuna() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div className="bpmn-interface-root">
+      <div className="glass-container">
+        {/* Botón para volver al menú principal */}
+        <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <button style={{ 
+              background: 'transparent', 
+              border: '1px solid var(--glass-border)', 
+              color: 'var(--text-muted)', 
+              padding: '8px 16px', 
+              borderRadius: '8px', 
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              width: 'auto',
+              marginTop: 0,
+              display: 'inline-block'
+            }}>
+              ← Volver
+            </button>
+          </Link>
+        </div>
 
-      {/* Botón para volver al menú principal */}
-      <Link to="/">
-        <button style={{ backgroundColor: '#6c757d', marginBottom: '20px', cursor: 'pointer' }}>
-          ← Volver
-        </button>
-      </Link>
-
-      <h1>Gestión de Vacunas</h1>
+      <h2>Gestión de Vacunas</h2>
 
       {/* Formulario de Registro */}
-      <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '5px' }}>
-        <h3>Registrar Nueva Vacuna</h3>
+      <div>
+        <p className="subtitle">Registrar Nueva Vacuna</p>
         <form onSubmit={handleSubmit}>
           <CampoTextoInput
             mensaje="ID Vacuna"
@@ -89,19 +102,21 @@ function FormularioVacuna() {
       </div>
 
       {/* Listado de Resultados */}
-      <div>
-        <h3>Lista de Vacunas en el Sistema</h3>
+      <div style={{ marginTop: '30px' }}>
+        <h3 style={{ marginBottom: '15px', color: 'var(--text-main)', textAlign: 'left' }}>Lista de Vacunas en el Sistema</h3>
         {vacunas.length === 0 ? (
-          <p>No hay vacunas en el sistema.</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No hay vacunas en el sistema.</p>
         ) : (
-          <ul>
+          <div>
             {vacunas.map((v) => (
-              <li key={v.id_vacuna} style={{ marginBottom: '5px' }}>
-                <strong>ID:</strong> {v.id_vacuna} | <strong>Nombre:</strong> {v.nombre_vacuna} | <strong>Stock:</strong> {v.stock_disponible} unidades
-              </li>
+              <div key={v.id_vacuna} className="list-item">
+                <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{v.nombre_vacuna}</h3>
+                <p>ID: {v.id_vacuna} | Stock: {v.stock_disponible} unidades</p>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
+      </div>
       </div>
     </div>
   )
