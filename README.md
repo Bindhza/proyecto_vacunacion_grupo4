@@ -73,8 +73,11 @@ Esta primera implementacion se considera una version muy rudimentaria de lo que 
 ## Implementacion Basica
 
 Paciente---> Rut : 11111111-1
+
 Personal ---> Rut : 22222222-2
+
 Admin ---> Rut : 33333333-3
+
 password (para cada rol) ---> admin
 
 ---
