@@ -93,6 +93,9 @@ password (para cada rol) ---> admin
 
 ---
 
+## Demostracion en video
+https://drive.google.com/file/d/1nv_SmY6xS2g74hjsVSia6xGMzy3MhTae/view?usp=sharing
+
 ## Información Académica
 
 Proyecto desarrollado para la asignatura **Diseño de Software**.
