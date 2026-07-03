@@ -9,20 +9,53 @@ function ValidacionRutPersonal() {
     const [rut_personal, setRutPersonal] = useState('')
     const navigate = useNavigate()
 
+    const handleRutChange = (rawValue) => {
+        if (rawValue === '') {
+            setRutPersonal('');
+            return;
+        }
+
+        const cleanRut = rawValue.replace(/[^0-9kK]/g, '').toUpperCase();
+        
+        // Límite de 9 caracteres para el RUT (cuerpo + DV)
+        if (cleanRut.length > 9) {
+            return;
+        }
+
+        if (cleanRut.length === 0) {
+            setRutPersonal('');
+            return;
+        }
+
+        if (cleanRut.length === 1) {
+            setRutPersonal(cleanRut);
+            return;
+        }
+
+        const body = cleanRut.slice(0, -1);
+        const dv = cleanRut.slice(-1);
+        const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        setRutPersonal(`${formattedBody}-${dv}`);
+    };
+
     //funcion para validar el rut ingresado
     const handleValidar = (e) => {
         e.preventDefault()
 
+        // Removemos los puntos del RUT antes de enviarlo
+        const rutSinPuntos = rut_personal.replace(/\./g, '');
+
         // realizamos la peticion POST para validar el rut del personal de la salud
-        axios.post('http://127.0.0.1:8000/api/validar_personal/', { rut: rut_personal })
+        axios.post('http://127.0.0.1:8000/api/validar_personal/', { rut: rutSinPuntos })
             .then(response => {
                 if (response.data.existe) {
                     // si el rut existe, se redirige al formulario de vacunacion
                     // enviando el centro de vacunacion correspondiente
-                    navigate('/formulario/vacunacion/registro', { 
-                        state: { 
-                            centro_vacunacion: response.data.centro_vacunacion 
-                        } 
+                    navigate('/formulario/vacunacion/registro', {
+                        state: {
+                            centro_vacunacion: response.data.centro_vacunacion
+                        }
                     })
                 } else {
                     alert('El RUT ingresado no corresponde a personal de la salud. Intente nuevamente.')
@@ -40,12 +73,12 @@ function ValidacionRutPersonal() {
                 {/* Botón para volver al menú principal */}
                 <div style={{ textAlign: 'left', marginBottom: '15px' }}>
                     <Link to="/" style={{ textDecoration: 'none' }}>
-                        <button style={{ 
-                            background: 'transparent', 
-                            border: '1px solid var(--glass-border)', 
-                            color: 'var(--text-muted)', 
-                            padding: '8px 16px', 
-                            borderRadius: '8px', 
+                        <button style={{
+                            background: 'transparent',
+                            border: '1px solid var(--glass-border)',
+                            color: 'var(--text-muted)',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             fontSize: '0.9rem',
                             width: 'auto',
@@ -57,23 +90,23 @@ function ValidacionRutPersonal() {
                     </Link>
                 </div>
 
-            <h2>Validación de Personal de la Salud</h2>
+                <h2>Validación de Personal de la Salud</h2>
 
-            {/* formulario de validacion del rut de personal */}
-            <div>
-                <p className="subtitle">Ingrese su RUT para continuar</p>
-                <form onSubmit={handleValidar}>
-                    {/* componente CampoTexto */}
-                    <CampoTextoInput
-                        mensaje="RUT Personal"
-                        tipo_dato="text"
-                        ejemplo="Ej. 12345678-9"
-                        valor_almacenado={rut_personal}
-                        onChange={(val) => setRutPersonal(val)}
-                    />
-                    <button type="submit">Ingresar al Formulario</button>
-                </form>
-            </div>
+                {/* formulario de validacion del rut de personal */}
+                <div>
+                    <p className="subtitle">Ingrese su RUT para continuar</p>
+                    <form onSubmit={handleValidar}>
+                        {/* componente CampoTexto */}
+                        <CampoTextoInput
+                            mensaje="RUT Personal"
+                            tipo_dato="text"
+                            ejemplo="Ej. 11.111.111-1"
+                            valor_almacenado={rut_personal}
+                            onChange={handleRutChange}
+                        />
+                        <button type="submit">Ingresar al Formulario</button>
+                    </form>
+                </div>
             </div>
         </div>
     )

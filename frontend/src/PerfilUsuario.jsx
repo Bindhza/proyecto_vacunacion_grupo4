@@ -9,6 +9,16 @@ function PerfilUsuario() {
 
   const user = JSON.parse(localStorage.getItem('user'));
 
+  const formatRut = (rutStr) => {
+    if (!rutStr) return '';
+    const cleanRut = String(rutStr).replace(/[^0-9kK]/g, '').toUpperCase();
+    if (cleanRut.length <= 1) return cleanRut;
+    const body = cleanRut.slice(0, -1);
+    const dv = cleanRut.slice(-1);
+    const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `${formattedBody}-${dv}`;
+  };
+
   useEffect(() => {
     if (user && user.rut) {
       axios.get(`http://127.0.0.1:8000/api/paciente/${user.rut}/citas/`)
@@ -55,7 +65,7 @@ function PerfilUsuario() {
         
         <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '30px', textAlign: 'left' }}>
           <p><strong>Nombres:</strong> {perfil.nombres} {perfil.apellidos}</p>
-          <p><strong>RUT:</strong> {perfil.rut}</p>
+          <p><strong>RUT:</strong> {formatRut(perfil.rut)}</p>
           <p><strong>Correo:</strong> {perfil.correo}</p>
           <p><strong>Fecha Nacimiento:</strong> {perfil.fecha_nacimiento}</p>
           <p><strong>Teléfono:</strong> {perfil.telefono}</p>

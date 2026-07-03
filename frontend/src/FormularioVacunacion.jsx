@@ -28,6 +28,32 @@ function FormularioVacunacion() {
     //usuario_recibio_vacuna
     const [rut_vacunado, setRutVacunado] = useState('')
 
+    const handleRutChange = (rawValue) => {
+        if (rawValue === '') {
+            setRutVacunado('');
+            return;
+        }
+        const cleanRut = rawValue.replace(/[^0-9kK]/g, '').toUpperCase();
+        
+        // Límite de 9 caracteres para el RUT (cuerpo + DV)
+        if (cleanRut.length > 9) {
+            return;
+        }
+        
+        if (cleanRut.length === 0) {
+            setRutVacunado('');
+            return;
+        }
+        if (cleanRut.length === 1) {
+            setRutVacunado(cleanRut);
+            return;
+        }
+        const body = cleanRut.slice(0, -1);
+        const dv = cleanRut.slice(-1);
+        const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        setRutVacunado(`${formattedBody}-${dv}`);
+    };
+
     //sincronizamos la campaña con la vacuna seleccionada
     useEffect(() => {
         setIdCampaña(vacuna_aplicada)
@@ -69,7 +95,7 @@ function FormularioVacunacion() {
             fecha_vacunacion: fecha_vacunacion,
             observaciones: observaciones,
             vacuna_aplicada: parseInt(vacuna_aplicada),
-            id_usuario: rut_vacunado,
+            id_usuario: rut_vacunado.replace(/\./g, ''),
             centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null, // se aplicará después
             id_campaña: id_campania ? parseInt(id_campania) : null
         }
@@ -97,12 +123,12 @@ function FormularioVacunacion() {
                 {/* Botón para volver al menú principal */}
                 <div style={{ textAlign: 'left', marginBottom: '15px' }}>
                     <Link to="/" style={{ textDecoration: 'none' }}>
-                        <button style={{ 
-                            background: 'transparent', 
-                            border: '1px solid var(--glass-border)', 
-                            color: 'var(--text-muted)', 
-                            padding: '8px 16px', 
-                            borderRadius: '8px', 
+                        <button style={{
+                            background: 'transparent',
+                            border: '1px solid var(--glass-border)',
+                            color: 'var(--text-muted)',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             fontSize: '0.9rem',
                             width: 'auto',
@@ -114,70 +140,70 @@ function FormularioVacunacion() {
                     </Link>
                 </div>
 
-            <h2>Gestión de Vacunación</h2>
+                <h2>Gestión de Vacunación</h2>
 
-            {/* formulario de registro de vacunacion de usuarios */}
-            <div>
-                <p className="subtitle">Registrar Vacunación</p>
-                <form onSubmit={handleSubmit}>
-                    {/* componente CampoTexto */}
-                    <CampoTextoInput
-                        mensaje="ID Vacunacion"
-                        tipo_dato="text"
-                        ejemplo="Ej. 1"
-                        valor_almacenado={id_vacunacion}
-                        onChange={(val) => setIdVacunacion(val)}
-                    />
-                    <CampoTextoInput
-                        mensaje="Rut Vacunado"
-                        tipo_dato="text"
-                        ejemplo="Ej. 12345678-9"
-                        valor_almacenado={rut_vacunado}
-                        onChange={(val) => setRutVacunado(val)}
-                    />
-                    <CampoTextoInput
-                        mensaje="Fecha Vacunacion: "
-                        tipo_dato="date"
-                        ejemplo="Ej. 2022-01-01"
-                        valor_almacenado={fecha_vacunacion}
-                        onChange={(val) => setFechaVacunacion(val)}
-                    />
-
-                    {/*componente CampoTextoOptions para seleccionar la vacuna a aplicar*/}
-                    <CampoTextoOptions
-                        mensaje="Vacuna Aplicada: "
-                        data_type={vacunas}
-                        default_value="-- Seleccione Vacuna --"
-                        valor_almacenado={vacuna_aplicada}
-                        onChange={(val) => setVacunaAplicada(val)}
-                    />
-
-                    {/*campo de texto para observaciones*/}
-                    <div className="form-group">
-                        <label>Observaciones: </label>
-                        <textarea
-                            placeholder="Ej. Sin observaciones"
-                            value={observaciones}
-                            onChange={(e) => setObservaciones(e.target.value)}
-                            style={{
-                                width: '100%',
-                                height: '100px',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                border: '1px solid var(--glass-border)',
-                                background: 'rgba(15, 23, 42, 0.5)',
-                                color: 'white',
-                                fontFamily: "'Outfit', sans-serif",
-                                outline: 'none',
-                                resize: 'vertical',
-                                boxSizing: 'border-box'
-                            }}
-
+                {/* formulario de registro de vacunacion de usuarios */}
+                <div>
+                    <p className="subtitle">Registrar Vacunación</p>
+                    <form onSubmit={handleSubmit}>
+                        {/* componente CampoTexto */}
+                        <CampoTextoInput
+                            mensaje="ID Vacunacion"
+                            tipo_dato="text"
+                            ejemplo="Ej. 1"
+                            valor_almacenado={id_vacunacion}
+                            onChange={(val) => setIdVacunacion(val)}
                         />
-                    </div>
-                    <button type="submit">Guardar Usuario Vacunado</button>
-                </form>
-            </div>
+                        <CampoTextoInput
+                            mensaje="Rut Vacunado"
+                            tipo_dato="text"
+                            ejemplo="Ej. 11.111.111-1"
+                            valor_almacenado={rut_vacunado}
+                            onChange={handleRutChange}
+                        />
+                        <CampoTextoInput
+                            mensaje="Fecha Vacunacion: "
+                            tipo_dato="date"
+                            ejemplo="Ej. 2022-01-01"
+                            valor_almacenado={fecha_vacunacion}
+                            onChange={(val) => setFechaVacunacion(val)}
+                        />
+
+                        {/*componente CampoTextoOptions para seleccionar la vacuna a aplicar*/}
+                        <CampoTextoOptions
+                            mensaje="Vacuna Aplicada: "
+                            data_type={vacunas}
+                            default_value="-- Seleccione Vacuna --"
+                            valor_almacenado={vacuna_aplicada}
+                            onChange={(val) => setVacunaAplicada(val)}
+                        />
+
+                        {/*campo de texto para observaciones*/}
+                        <div className="form-group">
+                            <label>Observaciones: </label>
+                            <textarea
+                                placeholder="Ej. Sin observaciones"
+                                value={observaciones}
+                                onChange={(e) => setObservaciones(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    height: '100px',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--glass-border)',
+                                    background: 'rgba(15, 23, 42, 0.5)',
+                                    color: 'white',
+                                    fontFamily: "'Outfit', sans-serif",
+                                    outline: 'none',
+                                    resize: 'vertical',
+                                    boxSizing: 'border-box'
+                                }}
+
+                            />
+                        </div>
+                        <button type="submit">Guardar Usuario Vacunado</button>
+                    </form>
+                </div>
             </div>
         </div>
     )

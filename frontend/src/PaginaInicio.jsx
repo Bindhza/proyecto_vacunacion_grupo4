@@ -8,15 +8,55 @@ function PaginaInicio() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  const handleRutChange = (e) => {
+    let rawValue = e.target.value;
+
+    // Si el usuario borra, permitimos que se refleje
+    if (rawValue === '') {
+      setRut('');
+      return;
+    }
+
+    // Limpiar el valor dejando solo números y k/K
+    const cleanRut = rawValue.replace(/[^0-9kK]/g, '').toUpperCase();
+    
+    // Límite de 9 caracteres para el RUT (cuerpo + DV)
+    if (cleanRut.length > 9) {
+      return;
+    }
+
+    if (cleanRut.length === 0) {
+      setRut('');
+      return;
+    }
+
+    if (cleanRut.length === 1) {
+      setRut(cleanRut);
+      return;
+    }
+
+    // Separar cuerpo y dígito verificador
+    const body = cleanRut.slice(0, -1);
+    const dv = cleanRut.slice(-1);
+
+    // Formatear cuerpo con puntos
+    const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    setRut(`${formattedBody}-${dv}`);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     try {
+      // Remover los puntos antes de enviar al backend
+      const rutSinPuntos = rut.replace(/\./g, '');
+
       const response = await axios.post('http://127.0.0.1:8000/api/login/', {
-        rut,
+        rut: rutSinPuntos,
         password
       })
-      
+
       if (response.data.usuario) {
         localStorage.setItem('user', JSON.stringify(response.data.usuario))
         navigate('/sistema')
@@ -40,33 +80,33 @@ function PaginaInicio() {
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ textAlign: 'left' }}>
             <label style={{ display: 'block', marginBottom: '5px', color: '#555' }}>RUT</label>
-            <input 
-              type="text" 
-              value={rut} 
-              onChange={(e) => setRut(e.target.value)} 
-              placeholder="Ej. 12345678-9" 
+            <input
+              type="text"
+              value={rut}
+              onChange={handleRutChange}
+              placeholder="Ej. 11.111.111-1"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-              required 
-            />
-          </div>
-          
-          <div style={{ textAlign: 'left' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#555' }}>Contraseña</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="Contraseña" 
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-              required 
+              required
             />
           </div>
 
-          <button type="submit" style={{ 
-            padding: '14px', 
-            borderRadius: '8px', 
-            fontSize: '1.1rem', 
-            backgroundColor: '#10b981', 
+          <div style={{ textAlign: 'left' }}>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#555' }}>Contraseña</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Contraseña"
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+              required
+            />
+          </div>
+
+          <button type="submit" style={{
+            padding: '14px',
+            borderRadius: '8px',
+            fontSize: '1.1rem',
+            backgroundColor: '#10b981',
             color: 'white',
             border: 'none',
             cursor: 'pointer',

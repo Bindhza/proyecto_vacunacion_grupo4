@@ -43,6 +43,33 @@ function FlujoVisualAgendamiento() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleRutChange = (e) => {
+    const rawValue = e.target.value;
+    if (rawValue === '') {
+      setRut('');
+      return;
+    }
+    const cleanRut = rawValue.replace(/[^0-9kK]/g, '').toUpperCase();
+    
+    // Límite de 9 caracteres para el RUT (cuerpo + DV)
+    if (cleanRut.length > 9) {
+      return;
+    }
+
+    if (cleanRut.length === 0) {
+      setRut('');
+      return;
+    }
+    if (cleanRut.length === 1) {
+      setRut(cleanRut);
+      return;
+    }
+    const body = cleanRut.slice(0, -1);
+    const dv = cleanRut.slice(-1);
+    const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    setRut(`${formattedBody}-${dv}`);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -50,10 +77,11 @@ function FlujoVisualAgendamiento() {
 
 
     try {
+      const rutSinPuntos = rut.replace(/\./g, '');
       const res = await fetch(`${API_BASE}/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rut, password })
+        body: JSON.stringify({ rut: rutSinPuntos, password })
       });
       const data = await res.json();
       if (res.ok) {
@@ -180,7 +208,7 @@ function FlujoVisualAgendamiento() {
             <p className="subtitle">Inicia sesión para agendar tu hora</p>
             <div className="form-group">
               <label>RUT</label>
-              <input type="text" value={rut} onChange={(e) => setRut(e.target.value)} placeholder="Ej: 12345678-9" required />
+              <input type="text" value={rut} onChange={handleRutChange} placeholder="Ej: 11.111.111-1" required />
             </div>
             <div className="form-group">
               <label>Contraseña</label>
