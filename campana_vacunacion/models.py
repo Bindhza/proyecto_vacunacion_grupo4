@@ -10,6 +10,8 @@ class Campaña(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     estado_campaña = models.BooleanField()
+    centro_vacunacion = models.ForeignKey('CentroVacunacion', on_delete=models.SET_NULL, null=True, blank=True)
+    vacuna = models.ForeignKey('vacunas.Vacuna', on_delete=models.SET_NULL, null=True, blank=True)
 
     # Obtenemos la fecha de hoy, la comparamos con las fechas de inicio y fin y analizamos el estado de la campaña
     def verificar_vigencia(self):

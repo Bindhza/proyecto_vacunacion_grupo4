@@ -14,8 +14,8 @@ function CampoTextoOptions(props) {
         {props.data_type && props.data_type
           .filter((opcion) => opcion.stock_disponible === undefined || opcion.stock_disponible > 0)
           .map((opcion) => {
-            const id = opcion.id_vacuna || opcion.id;
-            const nombre = opcion.nombre_vacuna || opcion.nombre;
+            const id = opcion.id_vacuna || opcion.id_centro || opcion.id;
+            const nombre = opcion.nombre_vacuna || opcion.nombre_centro || opcion.nombre;
             return (
               <option key={id} value={id}>
                 {nombre}

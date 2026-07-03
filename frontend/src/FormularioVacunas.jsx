@@ -9,6 +9,7 @@ function FormularioVacuna() {
   const [id, setId] = useState('')           // ID para el formulario
   const [nombre, setNombre] = useState('')   // Nombre para el formulario
   const [stock, setStock] = useState('')     // Stock para el formulario
+  const [isEditing, setIsEditing] = useState(false)
 
   // 2. Petición GET al cargar la página para listar las vacunas
   useEffect(() => {
@@ -21,30 +22,66 @@ function FormularioVacuna() {
       })
   }, [])
 
-  // 3. Petición POST al enviar el formulario para crear una vacuna
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Armamos el objeto con la estructura que espera Django
     const nuevaVacuna = {
       id_vacuna: parseInt(id),
       nombre_vacuna: nombre,
       stock_disponible: parseInt(stock)
     }
 
-    axios.post('http://127.0.0.1:8000/api/vacunas/', nuevaVacuna)
-      .then(response => {
-        // Agregamos la nueva vacuna retornada por Django a la lista en pantalla
-        setVacunas([...vacunas, response.data])
-        // Limpiamos los campos del formulario
-        setId('')
-        setNombre('')
-        setStock('')
-      })
-      .catch(error => {
-        alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
-        console.error(error)
-      })
+    if (isEditing) {
+      axios.put(`http://127.0.0.1:8000/api/vacunas/${id}/`, nuevaVacuna)
+        .then(response => {
+          setVacunas(vacunas.map(v => v.id_vacuna === parseInt(id) ? response.data : v))
+          resetForm()
+          alert('Vacuna actualizada exitosamente.')
+        })
+        .catch(error => {
+          alert('Error al actualizar la vacuna.')
+          console.error(error)
+        })
+    } else {
+      axios.post('http://127.0.0.1:8000/api/vacunas/', nuevaVacuna)
+        .then(response => {
+          setVacunas([...vacunas, response.data])
+          resetForm()
+          alert('Vacuna creada exitosamente.')
+        })
+        .catch(error => {
+          alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
+          console.error(error)
+        })
+    }
+  }
+
+  const resetForm = () => {
+    setId('')
+    setNombre('')
+    setStock('')
+    setIsEditing(false)
+  }
+
+  const handleEditClick = (v) => {
+    setId(v.id_vacuna.toString())
+    setNombre(v.nombre_vacuna)
+    setStock(v.stock_disponible.toString())
+    setIsEditing(true)
+    window.scrollTo(0, 0)
+  }
+
+  const handleDelete = (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta vacuna?')) {
+      axios.delete(`http://127.0.0.1:8000/api/vacunas/${id}/`)
+        .then(() => {
+          setVacunas(vacunas.filter(v => v.id_vacuna !== id))
+        })
+        .catch(error => {
+          alert('Error al eliminar la vacuna. Podría estar asociada a registros existentes.')
+          console.error(error)
+        })
+    }
   }
 
   return (
@@ -74,14 +111,14 @@ function FormularioVacuna() {
 
       {/* Formulario de Registro */}
       <div>
-        <p className="subtitle">Registrar Nueva Vacuna</p>
+        <p className="subtitle">{isEditing ? 'Editar Vacuna' : 'Registrar Nueva Vacuna'}</p>
         <form onSubmit={handleSubmit}>
           <CampoTextoInput
-            mensaje="ID Vacuna"
+            mensaje="ID Vacuna (No se puede cambiar si editas)"
             tipo_dato="number"
             ejemplo="Ej. 1"
             valor_almacenado={id}
-            onChange={(val) => setId(val)}
+            onChange={(val) => !isEditing && setId(val)} // previene cambiar id en edicion
           />
           <CampoTextoInput
             mensaje="Nombre"
@@ -97,7 +134,14 @@ function FormularioVacuna() {
             valor_almacenado={stock}
             onChange={(val) => setStock(val)}
           />
-          <button type="submit">Guardar en Base de Datos</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit">{isEditing ? 'Actualizar Vacuna' : 'Guardar en Base de Datos'}</button>
+            {isEditing && (
+              <button type="button" onClick={resetForm} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white' }}>
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -109,9 +153,25 @@ function FormularioVacuna() {
         ) : (
           <div>
             {vacunas.map((v) => (
-              <div key={v.id_vacuna} className="list-item">
-                <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{v.nombre_vacuna}</h3>
-                <p>ID: {v.id_vacuna} | Stock: {v.stock_disponible} unidades</p>
+              <div key={v.id_vacuna} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{v.nombre_vacuna}</h3>
+                  <p style={{ margin: 0 }}>ID: {v.id_vacuna} | Stock: {v.stock_disponible} unidades</p>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => handleEditClick(v)}
+                    style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid #3b82f6', color: '#3b82f6', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}
+                  >
+                    Editar
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(v.id_vacuna)}
+                    style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             ))}
           </div>

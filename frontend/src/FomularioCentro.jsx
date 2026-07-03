@@ -10,6 +10,7 @@ function FormularioCentro() {
   const [nombreCentro, setNombreCentro] = useState('')
   const [comunaCentro, setComunaCentro] = useState('')
   const [regionCentro, setRegionCentro] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -42,29 +43,54 @@ function FormularioCentro() {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    //armamos el objeto con la estructura que espera Django
     const nuevoCentro = {
       id_centro: parseInt(idCentro),
       nombre_centro: nombreCentro,
       comuna_centro: comunaCentro,
       region_centro: regionCentro,
-      direccion_centro: null // Se deja en null de forma temporal
+      direccion_centro: null 
     }
 
-    axios.post('http://127.0.0.1:8000/api/centro/', nuevoCentro)
-      .then(response => {
-        //agregamos el nuevo centro retornado por Django a la lista en pantalla
-        setCentros([...centros, response.data])
-        //limpiamos los campos del formulario
-        setIdCentro('')
-        setNombreCentro('')
-        setComunaCentro('')
-        setRegionCentro('')
-      })
-      .catch(error => {
-        alert('Error al guardar el centro. Asegúrate de usar un ID único.')
-        console.error(error)
-      })
+    if (isEditing) {
+      axios.put(`http://127.0.0.1:8000/api/centro/${idCentro}/`, nuevoCentro)
+        .then(response => {
+          setCentros(centros.map(c => c.id_centro === parseInt(idCentro) ? response.data : c))
+          resetForm()
+          alert('Centro actualizado exitosamente.')
+        })
+        .catch(error => {
+          alert('Error al actualizar el centro.')
+          console.error(error)
+        })
+    } else {
+      axios.post('http://127.0.0.1:8000/api/centro/', nuevoCentro)
+        .then(response => {
+          setCentros([...centros, response.data])
+          resetForm()
+          alert('Centro creado exitosamente.')
+        })
+        .catch(error => {
+          alert('Error al guardar el centro. Asegúrate de usar un ID único.')
+          console.error(error)
+        })
+    }
+  }
+
+  const resetForm = () => {
+    setIdCentro('')
+    setNombreCentro('')
+    setComunaCentro('')
+    setRegionCentro('')
+    setIsEditing(false)
+  }
+
+  const handleEditClick = (c) => {
+    setIdCentro(c.id_centro.toString())
+    setNombreCentro(c.nombre_centro)
+    setComunaCentro(c.comuna_centro)
+    setRegionCentro(c.region_centro)
+    setIsEditing(true)
+    window.scrollTo(0, 0)
   }
 
   return (
@@ -94,14 +120,14 @@ function FormularioCentro() {
 
       {/* Formulario de Registro */}
       <div>
-        <p className="subtitle">Registrar Nuevo Centro</p>
+        <p className="subtitle">{isEditing ? 'Editar Centro' : 'Registrar Nuevo Centro'}</p>
         <form onSubmit={handleSubmit}>
           <CampoTextoInput
-            mensaje="ID Centro"
+            mensaje="ID Centro (No se puede cambiar si editas)"
             tipo_dato="number"
             ejemplo="Ej. 1"
             valor_almacenado={idCentro}
-            onChange={(val) => setIdCentro(val)}
+            onChange={(val) => !isEditing && setIdCentro(val)}
           />
           <CampoTextoInput
             mensaje="Nombre Centro"
@@ -124,7 +150,14 @@ function FormularioCentro() {
             valor_almacenado={regionCentro}
             onChange={(val) => setRegionCentro(val)}
           />
-          <button type="submit">Guardar en Base de Datos</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit">{isEditing ? 'Actualizar Centro' : 'Guardar en Base de Datos'}</button>
+            {isEditing && (
+              <button type="button" onClick={resetForm} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white' }}>
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -142,12 +175,20 @@ function FormularioCentro() {
                   <p style={{ margin: 0 }}>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
                 </div>
                 {isAdmin && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleDelete(c.id_centro); }}
-                    style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}
-                  >
-                    Eliminar
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleEditClick(c); }}
+                      style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid #3b82f6', color: '#3b82f6', width: 'auto', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', margin: 0, fontSize: '0.85rem' }}
+                    >
+                      Editar
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleDelete(c.id_centro); }}
+                      style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', margin: 0, fontSize: '0.85rem' }}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 )}
               </div>
             ))}

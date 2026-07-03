@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
+import CampoTextoOptions from './components/CampoTextoOptions'
 
 function FormularioCampana() {
   const [campanas, setCampanas] = useState([])
@@ -12,6 +13,11 @@ function FormularioCampana() {
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
   const [estado, setEstado] = useState(true)
+  const [centro, setCentro] = useState('')
+  const [vacuna, setVacuna] = useState('')
+  const [centrosList, setCentrosList] = useState([])
+  const [vacunasList, setVacunasList] = useState([])
+  const [isEditing, setIsEditing] = useState(false)
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -49,7 +55,23 @@ function FormularioCampana() {
         setCampanas(response.data)
       })
       .catch(error => {
-        console.error('Error al cargar datos:', error)
+        console.error('Error al cargar campañas:', error)
+      })
+
+    axios.get('http://127.0.0.1:8000/api/centro/')
+      .then(response => {
+        setCentrosList(response.data)
+      })
+      .catch(error => {
+        console.error('Error al cargar centros:', error)
+      })
+      
+    axios.get('http://127.0.0.1:8000/api/vacunas/')
+      .then(response => {
+        setVacunasList(response.data)
+      })
+      .catch(error => {
+        console.error('Error al cargar vacunas:', error)
       })
   }, [])
 
@@ -85,24 +107,59 @@ function FormularioCampana() {
       descripcion_campaña: descripcion,
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
-      estado_campaña: estado
+      estado_campaña: estado,
+      centro_vacunacion: centro ? parseInt(centro) : null,
+      vacuna: vacuna ? parseInt(vacuna) : null
     }
 
-    axios.post('http://127.0.0.1:8000/api/campana_crud/', nuevaCampana)
-      .then(response => {
-        alert('Campaña creada exitosamente')
-        setCampanas([...campanas, response.data])
-        setId('')
-        setNombre('')
-        setDescripcion('')
-        setFechaInicio('')
-        setFechaFin('')
-        setEstado(true)
-      })
-      .catch(error => {
-        console.error('Error al crear campaña:', error)
-        alert('Ocurrió un error al crear la campaña.')
-      })
+    if (isEditing) {
+      axios.put(`http://127.0.0.1:8000/api/campana_crud/${id}/`, nuevaCampana)
+        .then(response => {
+          alert('Campaña actualizada exitosamente')
+          setCampanas(campanas.map(c => c.id_campaña === parseInt(id) ? response.data : c))
+          resetForm()
+        })
+        .catch(error => {
+          console.error('Error al actualizar campaña:', error)
+          alert('Ocurrió un error al actualizar la campaña.')
+        })
+    } else {
+      axios.post('http://127.0.0.1:8000/api/campana_crud/', nuevaCampana)
+        .then(response => {
+          alert('Campaña creada exitosamente')
+          setCampanas([...campanas, response.data])
+          resetForm()
+        })
+        .catch(error => {
+          console.error('Error al crear campaña:', error)
+          alert('Ocurrió un error al crear la campaña.')
+        })
+    }
+  }
+
+  const resetForm = () => {
+    setId('')
+    setNombre('')
+    setDescripcion('')
+    setFechaInicio('')
+    setFechaFin('')
+    setEstado(true)
+    setCentro('')
+    setVacuna('')
+    setIsEditing(false)
+  }
+
+  const handleEditClick = (c) => {
+    setId(c.id_campaña.toString())
+    setNombre(c.nombre_campaña)
+    setDescripcion(c.descripcion_campaña)
+    setFechaInicio(c.fecha_inicio)
+    setFechaFin(c.fecha_fin)
+    setEstado(c.estado_campaña)
+    setCentro(c.centro_vacunacion ? c.centro_vacunacion.toString() : '')
+    setVacuna(c.vacuna ? c.vacuna.toString() : '')
+    setIsEditing(true)
+    window.scrollTo(0, 0)
   }
 
   return (
@@ -132,13 +189,14 @@ function FormularioCampana() {
         {isAdmin ? (
           <>
             <form onSubmit={handleSubmit} style={{ textAlign: 'left', marginBottom: '40px' }}>
+              <p className="subtitle">{isEditing ? 'Editar Campaña' : 'Registrar Nueva Campaña'}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <CampoTextoInput 
-                  mensaje="ID Campaña:" 
+                  mensaje="ID Campaña (No se puede cambiar si editas):" 
                   tipo_dato="number" 
                   ejemplo="Ej. 1"
                   valor_almacenado={id} 
-                  onChange={(val) => setId(val)} 
+                  onChange={(val) => !isEditing && setId(val)} 
                 />
                 <CampoTextoInput 
                   mensaje="Nombre de Campaña:" 
@@ -178,6 +236,23 @@ function FormularioCampana() {
                 />
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+                <CampoTextoOptions 
+                  mensaje="Centro Asociado:" 
+                  data_type={centrosList}
+                  default_value="-- Seleccione Centro --"
+                  valor_almacenado={centro} 
+                  onChange={(val) => setCentro(val)} 
+                />
+                <CampoTextoOptions 
+                  mensaje="Vacuna Asociada:" 
+                  data_type={vacunasList}
+                  default_value="-- Seleccione Vacuna --"
+                  valor_almacenado={vacuna} 
+                  onChange={(val) => setVacuna(val)} 
+                />
+              </div>
+
               <div className="form-group" style={{ marginTop: '15px' }}>
                 <label>Estado de Campaña:</label>
                 <select 
@@ -190,9 +265,16 @@ function FormularioCampana() {
                 </select>
               </div>
 
-              <button type="submit" style={{ marginTop: '20px' }}>
-                Agregar Campaña
-              </button>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button type="submit">
+                  {isEditing ? 'Actualizar Campaña' : 'Agregar Campaña'}
+                </button>
+                {isEditing && (
+                  <button type="button" onClick={resetForm} style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white' }}>
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </>
         ) : (
@@ -205,23 +287,34 @@ function FormularioCampana() {
             <p style={{ color: 'var(--text-muted)' }}>No hay campañas registradas.</p>
           ) : (
             <div>
-              {campanas.map((c) => (
+              {campanas.map((c) => {
+                const cNombre = centrosList.find(x => x.id_centro === c.centro_vacunacion)?.nombre_centro || 'No asignado';
+                const vNombre = vacunasList.find(x => x.id_vacuna === c.vacuna)?.nombre_vacuna || 'No asignada';
+                return (
                 <div key={c.id_campaña} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_campaña} {c.estado_campaña ? '🟢' : '🔴'}</h3>
                     <p style={{ margin: 0 }}>ID: {c.id_campaña} | Inicio: {c.fecha_inicio} | Fin: {c.fecha_fin}</p>
-                    <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.descripcion_campaña}</p>
+                    <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.descripcion_campaña} | Centro: {cNombre} | Vacuna: {vNombre}</p>
                   </div>
                   {isAdmin && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleDelete(c.id_campaña); }}
-                      style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}
-                    >
-                      Eliminar
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEditClick(c); }}
+                        style={{ background: 'rgba(59, 130, 246, 0.2)', border: '1px solid #3b82f6', color: '#3b82f6', width: 'auto', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', margin: 0, fontSize: '0.85rem' }}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(c.id_campaña); }}
+                        style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', margin: 0, fontSize: '0.85rem' }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>
