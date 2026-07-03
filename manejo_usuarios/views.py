@@ -201,3 +201,62 @@ def registrar_dosis_view(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Método no permitido. Usa POST.'}, status=405)
+
+@csrf_exempt
+def actualizar_correo_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            rut = data.get('rut')
+            nuevo_correo = data.get('correo')
+            
+            if not rut or not nuevo_correo:
+                return JsonResponse({'error': 'RUT y correo son requeridos'}, status=400)
+                
+            usuario = Usuario.objects.get(rut=rut)
+            usuario.correo = nuevo_correo
+            usuario.save()
+            
+            return JsonResponse({'mensaje': 'Correo actualizado exitosamente'})
+        except Usuario.DoesNotExist:
+            return JsonResponse({'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def actualizar_telefono_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            rut = data.get('rut')
+            nuevo_telefono = data.get('telefono')
+            
+            if not rut or nuevo_telefono is None:
+                return JsonResponse({'error': 'RUT y teléfono son requeridos'}, status=400)
+                
+            try:
+                nuevo_telefono = int(nuevo_telefono)
+            except ValueError:
+                return JsonResponse({'error': 'El teléfono debe ser un número'}, status=400)
+
+            usuario = Usuario.objects.get(rut=rut)
+            
+            if hasattr(usuario, 'paciente'):
+                usuario.paciente.telefono = nuevo_telefono
+                usuario.paciente.save()
+            elif hasattr(usuario, 'personal'):
+                usuario.personal.telefono = nuevo_telefono
+                usuario.personal.save()
+            elif hasattr(usuario, 'admin'):
+                usuario.admin.telefono = nuevo_telefono
+                usuario.admin.save()
+            else:
+                return JsonResponse({'error': 'Rol de usuario desconocido'}, status=400)
+            
+            return JsonResponse({'mensaje': 'Teléfono actualizado exitosamente'})
+        except Usuario.DoesNotExist:
+            return JsonResponse({'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

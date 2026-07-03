@@ -95,6 +95,7 @@ class Paciente(Usuario):
 class Personal(Usuario):
     id_personal = models.IntegerField(unique=True)
     centro_vacunacion = models.ForeignKey('campana_vacunacion.CentroVacunacion', on_delete=models.SET_NULL, null=True)
+    telefono = models.IntegerField(null=True, blank=True)
 
     #Registra una dosis y calcula el numero de dosis recibida
     def registrar_vacuna(self, usuario_receptor, vacuna_aplicada):
@@ -114,7 +115,7 @@ class Personal(Usuario):
         return nuevo_registro
 
 class Admin(Usuario):
-    pass
+    telefono = models.IntegerField(null=True, blank=True)
 
 class Historial(models.Model):
     # Usuario que se vacuno

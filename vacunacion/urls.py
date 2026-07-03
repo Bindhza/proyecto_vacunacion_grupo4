@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from manejo_usuarios.views import login_view
-from campana_vacunacion.views import get_campanas, get_centros, get_citas, agendar_cita, get_citas_paciente
+from manejo_usuarios.views import login_view, actualizar_correo_view, actualizar_telefono_view
+from campana_vacunacion.views import get_campanas, get_centros, get_citas, agendar_cita, get_citas_paciente, cancelar_cita
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,5 +28,8 @@ urlpatterns = [
     path('api/campanas/<int:campana_id>/centros/', get_centros, name='centros'),
     path('api/campanas/<int:campana_id>/centros/<int:centro_id>/citas/', get_citas, name='citas'),
     path('api/agendar/', agendar_cita, name='agendar'),
+    path('api/cancelar/', cancelar_cita, name='cancelar'),
+    path('api/actualizar_correo/', actualizar_correo_view, name='actualizar_correo'),
+    path('api/actualizar_telefono/', actualizar_telefono_view, name='actualizar_telefono'),
     path('api/paciente/<str:rut>/citas/', get_citas_paciente, name='citas_paciente'),
 ]

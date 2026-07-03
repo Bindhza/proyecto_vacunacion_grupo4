@@ -8,6 +8,8 @@ function CampoTextoInput(props) {
         type={props.tipo_dato}
         placeholder={props.ejemplo}
         value={props.valor_almacenado}
+        min={props.min}
+        max={props.max}
         //atento al cambio en el input
         onChange={(e) => props.onChange(e.target.value)}
       />

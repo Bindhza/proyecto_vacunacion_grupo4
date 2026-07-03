@@ -28,6 +28,15 @@ function FormularioVacunacion() {
     //usuario_recibio_vacuna
     const [rut_vacunado, setRutVacunado] = useState('')
 
+    const getTodayYMD = () => {
+        const dateObj = new Date();
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+    const today = getTodayYMD();
+
     const handleRutChange = (rawValue) => {
         if (rawValue === '') {
             setRutVacunado('');
@@ -167,6 +176,7 @@ function FormularioVacunacion() {
                             ejemplo="Ej. 2022-01-01"
                             valor_almacenado={fecha_vacunacion}
                             onChange={(val) => setFechaVacunacion(val)}
+                            min={today}
                         />
 
                         {/*componente CampoTextoOptions para seleccionar la vacuna a aplicar*/}

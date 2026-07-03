@@ -87,15 +87,41 @@ def get_citas_paciente(request, rut):
                 "direccion": c.centro_vacunacion.obtener_direccion_completa_centro() if c.centro_vacunacion else "Dirección no registrada"
             } for c in citas]
         
+        telefono = "No registrado"
+        if usuario.es_paciente and usuario.paciente.telefono:
+            telefono = usuario.paciente.telefono
+        elif hasattr(usuario, 'personal') and usuario.personal.telefono:
+            telefono = usuario.personal.telefono
+        elif hasattr(usuario, 'admin') and usuario.admin.telefono:
+            telefono = usuario.admin.telefono
+
         perfil = {
             "rut": usuario.rut,
             "nombres": usuario.nombres,
             "apellidos": usuario.apellidos,
             "correo": usuario.correo,
             "fecha_nacimiento": str(usuario.fecha_nacimiento) if usuario.fecha_nacimiento else "No registrada",
-            "telefono": usuario.paciente.telefono if usuario.es_paciente else "No aplica"
+            "telefono": telefono
         }
         
         return JsonResponse({"perfil": perfil, "citas": citas_data}, safe=False)
     except Usuario.DoesNotExist:
         return JsonResponse({"error": "Usuario no encontrado"}, status=404)
+
+@csrf_exempt
+def cancelar_cita(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            cita_id = body.get('cita_id')
+
+            cita = Cita.objects.get(id_cita=cita_id)
+            if cita.cancelar():
+                return JsonResponse({"mensaje": "Cita cancelada exitosamente"})
+            else:
+                return JsonResponse({"error": "No se pudo cancelar la cita"}, status=400)
+        except Cita.DoesNotExist:
+            return JsonResponse({"error": "Cita no encontrada"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Metodo no permitido"}, status=405)

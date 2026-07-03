@@ -16,6 +16,33 @@ function FormularioCampana() {
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
 
+  const getTodayYMD = () => {
+    const dateObj = new Date();
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+  const today = getTodayYMD();
+
+  let minFechaFin = today;
+  if (fechaInicio) {
+    const [y, m, d] = fechaInicio.split('-');
+    const dObj = new Date(y, m - 1, d);
+    dObj.setDate(dObj.getDate() + 1);
+    const ny = dObj.getFullYear();
+    const nm = String(dObj.getMonth() + 1).padStart(2, '0');
+    const nd = String(dObj.getDate()).padStart(2, '0');
+    minFechaFin = `${ny}-${nm}-${nd}`;
+  } else {
+    const dObj = new Date();
+    dObj.setDate(dObj.getDate() + 1);
+    const ny = dObj.getFullYear();
+    const nm = String(dObj.getMonth() + 1).padStart(2, '0');
+    const nd = String(dObj.getDate()).padStart(2, '0');
+    minFechaFin = `${ny}-${nm}-${nd}`;
+  }
+
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/api/campana_crud/')
       .then(response => {
@@ -41,6 +68,16 @@ function FormularioCampana() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (fechaInicio < today) {
+      alert('La fecha de inicio no puede ser en el pasado.');
+      return;
+    }
+
+    if (fechaFin <= fechaInicio) {
+      alert('La fecha de fin debe ser estrictamente posterior a la fecha de inicio.');
+      return;
+    }
 
     const nuevaCampana = {
       id_campaña: parseInt(id),
@@ -129,6 +166,7 @@ function FormularioCampana() {
                   ejemplo=""
                   valor_almacenado={fechaInicio} 
                   onChange={(val) => setFechaInicio(val)} 
+                  min={today}
                 />
                 <CampoTextoInput 
                   mensaje="Fecha Fin:" 
@@ -136,6 +174,7 @@ function FormularioCampana() {
                   ejemplo=""
                   valor_almacenado={fechaFin} 
                   onChange={(val) => setFechaFin(val)} 
+                  min={minFechaFin}
                 />
               </div>
 
