@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const API_BASE = 'http://localhost:8000/api';
 
@@ -7,16 +7,28 @@ function FlujoVisualAgendamiento() {
   const [step, setStep] = useState(0); // 0: Login, 1: Campaña, 2: Centro, 3: Horario, 4: Success
   const [user, setUser] = useState(null);
 
+  const location = useLocation();
+  const reagendarData = location.state;
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setStep(1); // Si ya está logueado, saltar el login
+      setStep(1); 
       
-      // Obtener campañas automáticamente
       fetch(`${API_BASE}/campanas/`)
         .then(res => res.json())
-        .then(data => setCampanas(data))
+        .then(data => {
+          setCampanas(data);
+          
+          // Si estamos reagendando y tenemos el campana_id, autoseleccionamos la campaña
+          if (reagendarData && reagendarData.campana_id) {
+            const campanaAutoseleccionada = data.find(c => c.id === reagendarData.campana_id);
+            if (campanaAutoseleccionada) {
+              handleSelectCampana(campanaAutoseleccionada);
+            }
+          }
+        })
         .catch(err => console.error('Error cargando campañas', err));
     }
   }, []);
@@ -118,6 +130,14 @@ function FlujoVisualAgendamiento() {
       const res = await fetch(`${API_BASE}/campanas/${campana.id}/centros/`);
       const data = await res.json();
       setCentros(data);
+      
+      if (reagendarData && reagendarData.centro_id) {
+        const centroAutoseleccionado = data.find(c => c.id === reagendarData.centro_id);
+        if (centroAutoseleccionado) {
+          handleSelectCentro(centroAutoseleccionado, campana.id);
+          return;
+        }
+      }
       setStep(2);
     } catch (err) {
       setError('Error cargando centros');
@@ -125,12 +145,13 @@ function FlujoVisualAgendamiento() {
     setLoading(false);
   };
 
-  const handleSelectCentro = async (centro) => {
+  const handleSelectCentro = async (centro, campanaId = null) => {
     setSelectedCentro(centro);
     setLoading(true);
+    const cId = campanaId || selectedCampana.id;
 
     try {
-      const res = await fetch(`${API_BASE}/campanas/${selectedCampana.id}/centros/${centro.id}/citas/`);
+      const res = await fetch(`${API_BASE}/campanas/${cId}/centros/${centro.id}/citas/`);
       const data = await res.json();
       setCitas(data);
       setStep(3);
@@ -145,10 +166,15 @@ function FlujoVisualAgendamiento() {
     setLoading(true);
 
     try {
+      const payload = { cita_id: cita.id, rut_paciente: user.rut };
+      if (reagendarData && reagendarData.citaACancelarAlReagendar) {
+        payload.cita_a_cancelar = reagendarData.citaACancelarAlReagendar;
+      }
+
       const res = await fetch(`${API_BASE}/agendar/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cita_id: cita.id, rut_paciente: user.rut })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (res.ok) {
@@ -223,8 +249,13 @@ function FlujoVisualAgendamiento() {
 
         {step === 1 && (
           <div>
-            <h2>Selecciona una Campaña</h2>
-            <p className="subtitle">Hola {user?.nombres}, ¿Para qué campaña deseas agendar?</p>
+            <h2>{reagendarData ? 'Reagendando tu hora' : 'Selecciona una Campaña'}</h2>
+            <p className="subtitle">
+              {reagendarData 
+                ? `Hola ${user?.nombres}, selecciona el centro y el nuevo horario`
+                : `Hola ${user?.nombres}, ¿Para qué campaña deseas agendar?`
+              }
+            </p>
             {campanas.length === 0 ? <p style={{textAlign: 'center'}}>No hay campañas vigentes en este momento.</p> : null}
             {campanas.map(c => (
               <div key={c.id} className="list-item" onClick={() => handleSelectCampana(c)}>
@@ -247,7 +278,7 @@ function FlujoVisualAgendamiento() {
                 <p>{c.direccion}</p>
               </div>
             ))}
-            <button onClick={() => setStep(1)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Campañas</button>
+            {!reagendarData && <button onClick={() => setStep(1)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Campañas</button>}
           </div>
         )}
 
@@ -259,10 +290,22 @@ function FlujoVisualAgendamiento() {
             {citas.map(c => (
               <div key={c.id} className="list-item" onClick={() => handleAgendar(c)}>
                 <h3>{c.fecha}</h3>
-                <p>Hora: {c.hora}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p>Hora: {c.hora}</p>
+                  <span style={{ 
+                    background: 'rgba(16, 185, 129, 0.2)', 
+                    color: '#10b981', 
+                    padding: '4px 10px', 
+                    borderRadius: '12px', 
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold'
+                  }}>
+                    {c.cupos} cupos disponibles
+                  </span>
+                </div>
               </div>
             ))}
-            <button onClick={() => setStep(2)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Centros</button>
+            {!reagendarData && <button onClick={() => setStep(2)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Centros</button>}
             {error && <p className="error-message">{error}</p>}
           </div>
         )}

@@ -13,7 +13,7 @@ function FormularioCampana() {
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaFin, setFechaFin] = useState('')
   const [estado, setEstado] = useState(true)
-  const [centro, setCentro] = useState('')
+  const [centros, setCentros] = useState([])
   const [vacuna, setVacuna] = useState('')
   const [centrosList, setCentrosList] = useState([])
   const [vacunasList, setVacunasList] = useState([])
@@ -108,7 +108,7 @@ function FormularioCampana() {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
       estado_campaña: estado,
-      centro_vacunacion: centro ? parseInt(centro) : null,
+      centros_vacunacion: centros.map(c => parseInt(c)),
       vacuna: vacuna ? parseInt(vacuna) : null
     }
 
@@ -144,7 +144,7 @@ function FormularioCampana() {
     setFechaInicio('')
     setFechaFin('')
     setEstado(true)
-    setCentro('')
+    setCentros([])
     setVacuna('')
     setIsEditing(false)
   }
@@ -156,7 +156,7 @@ function FormularioCampana() {
     setFechaInicio(c.fecha_inicio)
     setFechaFin(c.fecha_fin)
     setEstado(c.estado_campaña)
-    setCentro(c.centro_vacunacion ? c.centro_vacunacion.toString() : '')
+    setCentros(c.centros_vacunacion ? c.centros_vacunacion.map(String) : [])
     setVacuna(c.vacuna ? c.vacuna.toString() : '')
     setIsEditing(true)
     window.scrollTo(0, 0)
@@ -238,11 +238,12 @@ function FormularioCampana() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
                 <CampoTextoOptions 
-                  mensaje="Centro Asociado:" 
+                  mensaje="Centros Asociados:" 
                   data_type={centrosList}
-                  default_value="-- Seleccione Centro --"
-                  valor_almacenado={centro} 
-                  onChange={(val) => setCentro(val)} 
+                  default_value="-- Seleccionar Centros --"
+                  valor_almacenado={centros} 
+                  onChange={(val) => setCentros(val)} 
+                  multiple={true}
                 />
                 <CampoTextoOptions 
                   mensaje="Vacuna Asociada:" 
@@ -288,14 +289,16 @@ function FormularioCampana() {
           ) : (
             <div>
               {campanas.map((c) => {
-                const cNombre = centrosList.find(x => x.id_centro === c.centro_vacunacion)?.nombre_centro || 'No asignado';
+                const cNombres = c.centros_vacunacion && c.centros_vacunacion.length > 0
+                  ? c.centros_vacunacion.map(id => centrosList.find(x => x.id_centro === id)?.nombre_centro || 'Desconocido').join(', ')
+                  : 'No asignado';
                 const vNombre = vacunasList.find(x => x.id_vacuna === c.vacuna)?.nombre_vacuna || 'No asignada';
                 return (
                 <div key={c.id_campaña} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_campaña} {c.estado_campaña ? '🟢' : '🔴'}</h3>
                     <p style={{ margin: 0 }}>ID: {c.id_campaña} | Inicio: {c.fecha_inicio} | Fin: {c.fecha_fin}</p>
-                    <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.descripcion_campaña} | Centro: {cNombre} | Vacuna: {vNombre}</p>
+                    <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.descripcion_campaña} | Centros: {cNombres} | Vacuna: {vNombre}</p>
                   </div>
                   {isAdmin && (
                     <div style={{ display: 'flex', gap: '10px' }}>

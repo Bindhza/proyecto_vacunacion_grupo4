@@ -202,12 +202,19 @@ function PerfilUsuario() {
                   <p style={{ margin: '5px 0', color: 'var(--text-muted)' }}>{c.centro}</p>
                   <p style={{ margin: '5px 0', fontSize: '0.85rem' }}>{c.direccion}</p>
                 </div>
-                <button 
-                  onClick={() => handleCancelar(c)} 
-                  style={{ padding: '8px 12px', backgroundColor: '#ef4444', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.9rem', marginLeft: '15px' }}
-                >
-                  Cancelar
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <Link to="/" state={{ citaACancelarAlReagendar: c.id, campana_id: c.campana_id, centro_id: c.centro_id }}>
+                    <button style={{ padding: '8px 12px', backgroundColor: 'transparent', border: '1px solid var(--primary)', borderRadius: '8px', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.9rem' }}>
+                      Reagendar
+                    </button>
+                  </Link>
+                  <button 
+                    onClick={() => handleCancelar(c)} 
+                    style={{ padding: '8px 12px', backgroundColor: '#ef4444', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontSize: '0.9rem' }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             ))}
           </div>

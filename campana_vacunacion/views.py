@@ -27,7 +27,12 @@ def get_campanas(request):
 def get_centros(request, campana_id):
     try:
         campana = Campaña.objects.get(id_campaña=campana_id)
-        centros = campana.obtener_centros_disponibles()
+        # Usar los centros asociados directamente
+        if campana.centros_vacunacion.exists():
+            centros = campana.centros_vacunacion.all()
+        else:
+            centros = campana.obtener_centros_disponibles()
+            
         data = [{"id": c.id_centro, "nombre": c.nombre_centro, "direccion": c.obtener_direccion_completa_centro()} for c in centros]
         return JsonResponse(data, safe=False)
     except Campaña.DoesNotExist:
@@ -37,8 +42,51 @@ def get_citas(request, campana_id, centro_id):
     try:
         campana = Campaña.objects.get(id_campaña=campana_id)
         centro = CentroVacunacion.objects.get(id_centro=centro_id)
+        
+        # Si no existen citas para esta campaña en este centro, las generamos automáticamente
+        if not Cita.objects.filter(campana=campana, centro_vacunacion=centro).exists():
+            from datetime import timedelta, datetime
+            fecha_actual = campana.fecha_inicio
+            cita_id_counter = Cita.objects.all().order_by('-id_cita').first()
+            current_id = (cita_id_counter.id_cita + 1) if cita_id_counter else 1
+            
+            citas_to_create = []
+            while fecha_actual <= campana.fecha_fin:
+                hora = datetime.strptime('09:00', '%H:%M')
+                hora_fin = datetime.strptime('17:00', '%H:%M')
+                while hora < hora_fin:
+                    for _ in range(10): # 10 cupos
+                        citas_to_create.append(Cita(
+                            id_cita=current_id,
+                            fecha_cita=fecha_actual,
+                            hora_cita=hora.time(),
+                            centro_vacunacion=centro,
+                            estado_cita=True,
+                            campana=campana
+                        ))
+                        current_id += 1
+                    hora += timedelta(minutes=15)
+                fecha_actual += timedelta(days=1)
+            Cita.objects.bulk_create(citas_to_create)
+
         citas = campana.verificar_horarios_y_cupos(centro)
-        data = [{"id": c.id_cita, "fecha": str(c.fecha_cita), "hora": str(c.hora_cita)} for c in citas]
+        
+        # Agrupar las citas por fecha y hora para no enviar cientos de items repetidos al frontend
+        agrupados = {}
+        for c in citas:
+            key = f"{c.fecha_cita}_{c.hora_cita}"
+            if key not in agrupados:
+                agrupados[key] = {
+                    "id": c.id_cita, # enviamos un ID representativo del bloque
+                    "fecha": str(c.fecha_cita),
+                    "hora": str(c.hora_cita),
+                    "cupos": 1
+                }
+            else:
+                agrupados[key]["cupos"] += 1
+                
+        # Solo enviar horarios que tengan cupos > 0
+        data = list(agrupados.values())
         return JsonResponse(data, safe=False)
     except (Campaña.DoesNotExist, CentroVacunacion.DoesNotExist):
         return JsonResponse({"error": "No encontrado"}, status=404)
@@ -64,6 +112,16 @@ def agendar_cita(request):
             cita = Cita.objects.get(id_cita=cita_id)
 
             if cita.agendar(paciente_obj):
+                # Si se pasó una cita para reagendar, la cancelamos ahora que el reagendamiento fue exitoso
+                cita_a_cancelar = body.get('cita_a_cancelar')
+                if cita_a_cancelar:
+                    try:
+                        vieja_cita = Cita.objects.get(id_cita=cita_a_cancelar)
+                        # Por seguridad confirmamos que le pertenezca al paciente
+                        if vieja_cita.paciente_citado == paciente_obj:
+                            vieja_cita.cancelar()
+                    except Cita.DoesNotExist:
+                        pass
                 return JsonResponse({"mensaje": "Cita agendada exitosamente"})
             else:
                 return JsonResponse({"error": "La cita ya no está disponible"}, status=400)
@@ -83,7 +141,9 @@ def get_citas_paciente(request, rut):
                 "fecha": str(c.fecha_cita),
                 "hora": str(c.hora_cita),
                 "campana": c.campana.nombre_campaña if c.campana else "Sin campaña",
+                "campana_id": c.campana.id_campaña if c.campana else None,
                 "centro": c.centro_vacunacion.nombre_centro if c.centro_vacunacion else "Sin centro",
+                "centro_id": c.centro_vacunacion.id_centro if c.centro_vacunacion else None,
                 "direccion": c.centro_vacunacion.obtener_direccion_completa_centro() if c.centro_vacunacion else "Dirección no registrada"
             } for c in citas]
         
