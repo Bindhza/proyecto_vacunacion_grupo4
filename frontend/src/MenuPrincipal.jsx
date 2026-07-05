@@ -5,6 +5,7 @@ import ButtonMenuPrincipal from './components/ButtonMenuPrincipal'
 function MenuPrincipal() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const [menuAbierto, setMenuAbierto] = useState(false)
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -21,56 +22,143 @@ function MenuPrincipal() {
     navigate('/')
   }
 
+  const toggleMenu = () => {
+    setMenuAbierto(!menuAbierto)
+  }
+
   if (!user) return <div>Cargando...</div>
 
   const rol = user.rol
 
   return (
-    <div style={{ padding: '40px', fontFamily: 'Arial, sans-serif', textAlign: 'center' }}>
+    <div style={{ fontFamily: 'Arial, sans-serif', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Botón para cerrar sesión */}
-      <button 
-        onClick={handleLogout} 
-        style={{ backgroundColor: '#dc3545', color: 'white', marginBottom: '20px', cursor: 'pointer', padding: '10px 20px', borderRadius: '8px', border: 'none' }}
+      {/* Top Bar */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '15px 30px',
+        backgroundColor: '#f8f9fa',
+        borderBottom: '1px solid #ddd'
+      }}>
+        <h1 style={{ margin: 0, fontSize: '24px' }}>Menú Principal</h1>
+        <button 
+          onClick={toggleMenu}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '30px',
+            cursor: 'pointer',
+            padding: '5px'
+          }}
+        >
+          ☰
+        </button>
+      </div>
+
+      {/* Main Content Area */}
+      <div style={{ padding: '40px', textAlign: 'center', flex: 1 }}>
+        <h2>Bienvenido, {user.nombres} {user.apellidos}</h2>
+        <p style={{ color: '#666', fontSize: '18px' }}>Rol: {rol}</p>
+        <p style={{ marginTop: '20px' }}>
+          Selecciona una opción en el menú de la derecha para continuar.
+        </p>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {menuAbierto && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 999
+          }}
+          onClick={toggleMenu}
+        />
+      )}
+
+      {/* Sidebar Drawer */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          right: menuAbierto ? 0 : '-350px',
+          width: '300px',
+          height: '100%',
+          backgroundColor: 'white',
+          boxShadow: '-2px 0 10px rgba(0,0,0,0.1)',
+          transition: 'right 0.3s ease',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '20px'
+        }}
       >
-        ← Cerrar Sesión
-      </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+          <h2 style={{ margin: 0 }}>Opciones</h2>
+          <button 
+            onClick={toggleMenu}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer'
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
-      <h1>Menú Principal</h1>
-      <p>Bienvenido, {user.nombres} {user.apellidos} ({rol})</p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', marginTop: '30px' }}>
-        
-        {/* Paciente puede ver solo agendar cita */}
-        {/* Personal puede ver agendar cita y formulario de vacunacion */}
-        {/* Admin puede ver formulario de vacunas y centro de vacunacion */}
-
-        {(rol === 'Paciente' || rol === 'Personal') && (
-          <ButtonMenuPrincipal 
-            mensaje="Agendar Cita"
-            ruta="/agendamiento"
-          />
-        )}
-
-        {rol === 'Personal' && (
-          <ButtonMenuPrincipal 
-            mensaje="Entrar al formulario de Vacunacion"
-            ruta="/formulario/vacunacion"
-          />
-        )}
-
-        {rol === 'Admin' && (
-          <>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1 }}>
+          {(rol === 'Paciente' || rol === 'Personal') && (
             <ButtonMenuPrincipal 
-              mensaje="Entrar al formulario de Vacunas"
-              ruta="/formulario/vacuna"
+              mensaje="Agendar Cita"
+              ruta="/agendamiento"
             />
+          )}
+
+          {rol === 'Personal' && (
             <ButtonMenuPrincipal 
-              mensaje="Entrar al formulario de Centro de Vacunacion"
-              ruta="/formulario/centro"
+              mensaje="Formulario de Vacunación"
+              ruta="/formulario/vacunacion"
             />
-          </>
-        )}
+          )}
+
+          {rol === 'Admin' && (
+            <>
+              <ButtonMenuPrincipal 
+                mensaje="Formulario de Vacunas"
+                ruta="/formulario/vacuna"
+              />
+              <ButtonMenuPrincipal 
+                mensaje="Centro de Vacunación"
+                ruta="/formulario/centro"
+              />
+            </>
+          )}
+        </div>
+
+        <button 
+          onClick={handleLogout} 
+          style={{ 
+            backgroundColor: '#dc3545', 
+            color: 'white', 
+            marginTop: 'auto', 
+            cursor: 'pointer', 
+            padding: '12px 20px', 
+            borderRadius: '8px', 
+            border: 'none',
+            fontSize: '16px',
+            fontWeight: 'bold'
+          }}
+        >
+          Cerrar Sesión
+        </button>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ const API_BASE = 'http://localhost:8000/api';
 function FlujoVisualAgendamiento() {
   const [step, setStep] = useState(0); // 0: Login, 1: Campaña, 2: Centro, 3: Horario, 4: Success
   const [user, setUser] = useState(null);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   const location = useLocation();
   const reagendarData = location.state;
@@ -39,9 +40,14 @@ function FlujoVisualAgendamiento() {
     setStep(0);
     setRut('');
     setPassword('');
+    setMenuAbierto(false);
   };
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
+
+  const toggleMenu = () => {
+    setMenuAbierto(!menuAbierto);
+  };
   
   const [campanas, setCampanas] = useState([]);
   const [selectedCampana, setSelectedCampana] = useState(null);
@@ -192,38 +198,131 @@ function FlujoVisualAgendamiento() {
     <div className="bpmn-interface-root">
       {/* Navegación superior si el usuario está logueado */}
       {step > 0 && user && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)', zIndex: 10 }}>
-          <div>
-            <strong style={{ fontSize: '1.1rem' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
+        <>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)', zIndex: 10 }}>
+            <div>
+              <strong style={{ fontSize: '1.1rem', color: 'white' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
+            </div>
+            <button 
+              onClick={toggleMenu}
+              style={{
+                width: '40px',
+                height: '40px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                color: 'white',
+                padding: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.2s ease',
+                marginLeft: 'auto',
+                marginTop: '0'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
           </div>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <Link to="/perfil" style={{ textDecoration: 'none' }}>
-              <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)' }}>Mi Perfil</button>
-            </Link>
 
-            {user.rol === 'Personal' && (
-              <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }}>
-                <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)' }}>Formulario de Vacunación</button>
+          {/* Sidebar Overlay */}
+          {menuAbierto && (
+            <div 
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                zIndex: 999
+              }}
+              onClick={toggleMenu}
+            />
+          )}
+
+          {/* Sidebar Drawer */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: menuAbierto ? 0 : '-350px',
+              width: '300px',
+              height: '100%',
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(10px)',
+              borderLeft: '1px solid var(--glass-border)',
+              boxShadow: '-2px 0 10px rgba(0,0,0,0.5)',
+              transition: 'right 0.3s ease',
+              zIndex: 1000,
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '20px',
+              boxSizing: 'border-box',
+              overflowY: 'auto'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+              <h2 style={{ margin: 0, color: 'white', fontSize: '1.5rem' }}>Opciones</h2>
+              <button 
+                onClick={toggleMenu}
+                style={{
+                  width: '35px',
+                  height: '35px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  marginTop: 0
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1 }}>
+              <Link to="/perfil" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mi Perfil</button>
               </Link>
-            )}
-            {user.rol === 'Admin' && (
-              <>
-                <Link to="/formulario/campana" style={{ textDecoration: 'none' }}>
-                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #10b981' }}>Campañas</button>
+
+              {user.rol === 'Personal' && (
+                <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                  <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Formulario de Vacunación</button>
                 </Link>
-                <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }}>
-                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6' }}>Vacunas</button>
-                </Link>
-                <Link to="/formulario/centro" style={{ textDecoration: 'none' }}>
-                  <button style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)' }}>Centro de Vacunación</button>
-                </Link>
-              </>
-            )}
-            <button onClick={handleLogout} style={{ width: 'auto', marginTop: 0, padding: '8px 16px', backgroundColor: '#ef4444', border: 'none' }}>
+              )}
+              {user.rol === 'Admin' && (
+                <>
+                  <Link to="/formulario/campana" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #10b981', color: 'white' }}>Campañas</button>
+                  </Link>
+                  <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6', color: 'white' }}>Vacunas</button>
+                  </Link>
+                  <Link to="/formulario/centro" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)', color: 'white' }}>Centro de Vacunación</button>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            <button onClick={handleLogout} style={{ width: '100%', padding: '12px 16px', backgroundColor: '#ef4444', border: 'none', color: 'white', fontWeight: 'bold', marginTop: 'auto', marginBottom: '20px' }}>
               Cerrar Sesión
             </button>
           </div>
-        </div>
+        </>
       )}
 
       <div className="glass-container" style={{ marginTop: step > 0 ? '80px' : '0' }}>
