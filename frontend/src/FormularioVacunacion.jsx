@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
 import CampoTextoOptions from './components/CampoTextoOptions'
+import ModalMensaje from './components/ModalMensaje'
 
 function FormularioVacunacion() {
     //almacenamiento del estado de datos
@@ -14,19 +15,19 @@ function FormularioVacunacion() {
 
     const [id_vacunacion, setIdVacunacion] = useState('')
     const [fecha_vacunacion, setFechaVacunacion] = useState('')
+    const [hora_vacunacion, setHoraVacunacion] = useState('')
     const [observaciones, setObservaciones] = useState('')
-    const [vacunas, setVacunas] = useState([])
-    const [vacuna_aplicada, setVacunaAplicada] = useState('')
+    
+    const [campanas, setCampanas] = useState([])
+    const [campana_aplicada, setCampanaAplicada] = useState('')
 
+    const [centros, setCentros] = useState([])
     const [centro_vacunacion, setCentroVacunacion] = useState('')
-    //el centro se extrae del funcionario que lo vacuna que despues sera entregado
-    //de momento dejar asi
-
-    const [id_campania, setIdCampaña] = useState('')
-    //la campaña se extrae de la vacuna
 
     //usuario_recibio_vacuna
     const [rut_vacunado, setRutVacunado] = useState('')
+
+    const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false });
 
     const getTodayYMD = () => {
         const dateObj = new Date();
@@ -63,10 +64,20 @@ function FormularioVacunacion() {
         setRutVacunado(`${formattedBody}-${dv}`);
     };
 
-    //sincronizamos la campaña con la vacuna seleccionada
+    //sincronizamos centros al seleccionar la campaña
     useEffect(() => {
-        setIdCampaña(vacuna_aplicada)
-    }, [vacuna_aplicada])
+        if (campana_aplicada) {
+            axios.get(`http://127.0.0.1:8000/api/campanas/${campana_aplicada}/centros/`)
+                .then(response => {
+                    setCentros(response.data)
+                })
+                .catch(error => {
+                    console.error('Error al cargar centros de la campaña:', error)
+                })
+        } else {
+            setCentros([])
+        }
+    }, [campana_aplicada])
 
     // Autovalidar el centro del personal logueado
     useEffect(() => {
@@ -83,11 +94,11 @@ function FormularioVacunacion() {
         }
     }, [rut_personal])
 
-    //realizamos la peticion GET para obtener las vacunas
+    //realizamos la peticion GET para obtener las campanas
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/api/vacunas/')
+        axios.get('http://127.0.0.1:8000/api/campanas/')
             .then(response => {
-                setVacunas(response.data) //pedimos todas las vacunas disponibles para mostrar
+                setCampanas(response.data) //pedimos todas las campañas disponibles para mostrar
             })
             .catch(error => {
                 console.error('Error al cargar datos:', error)
@@ -98,14 +109,14 @@ function FormularioVacunacion() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        // se prepara la subida de la nueva vacunacion (sin id_vacunacion, se autogenera en backend)
+        // se prepara la subida de la nueva vacunacion
         const nuevaVacunacion = {
             fecha_vacunacion: fecha_vacunacion,
+            hora_vacunacion: hora_vacunacion,
             observaciones: observaciones,
-            vacuna_aplicada: parseInt(vacuna_aplicada),
+            campana: parseInt(campana_aplicada),
             id_usuario: rut_vacunado.replace(/\./g, ''),
-            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null,
-            id_campaña: id_campania ? parseInt(id_campania) : null
+            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null
         }
 
         //peticion POST para guardar la vacunacion realizada
@@ -114,13 +125,14 @@ function FormularioVacunacion() {
                 // se limpia el formulario para rellenar nuevos datos
                 setRutVacunado('')
                 setFechaVacunacion('')
-                setVacunaAplicada('')
+                setHoraVacunacion('')
+                setCampanaAplicada('')
                 setObservaciones('')
                 setIdVacunacion('')
-                alert('Registro de vacunación guardado exitosamente.')
+                setModalInfo({ show: true, mensaje: 'Registro de vacunación guardado exitosamente.', esError: false })
             })
             .catch(error => {
-                alert('Error al guardar el registro. Intenta nuevamente.')
+                setModalInfo({ show: true, mensaje: 'Error al guardar el registro. Intenta nuevamente.', esError: true })
                 console.error(error)
             })
     }
@@ -171,13 +183,29 @@ function FormularioVacunacion() {
                             min={today}
                         />
 
-                        {/*componente CampoTextoOptions para seleccionar la vacuna a aplicar*/}
+                        <CampoTextoInput
+                            mensaje="Hora Vacunacion: "
+                            tipo_dato="time"
+                            ejemplo="Ej. 10:30"
+                            valor_almacenado={hora_vacunacion}
+                            onChange={(val) => setHoraVacunacion(val)}
+                        />
+
+                        {/*componente CampoTextoOptions para seleccionar la campana*/}
                         <CampoTextoOptions
-                            mensaje="Vacuna Aplicada: "
-                            data_type={vacunas}
-                            default_value="-- Seleccione Vacuna --"
-                            valor_almacenado={vacuna_aplicada}
-                            onChange={(val) => setVacunaAplicada(val)}
+                            mensaje="Campaña: "
+                            data_type={campanas.map(c => ({id: c.id, nombre: c.nombre}))}
+                            default_value="-- Seleccione Campaña --"
+                            valor_almacenado={campana_aplicada}
+                            onChange={(val) => setCampanaAplicada(val)}
+                        />
+
+                        <CampoTextoOptions
+                            mensaje="Centro de Vacunación: "
+                            data_type={centros.map(c => ({id: c.id, nombre: c.nombre}))}
+                            default_value="-- Seleccione Centro --"
+                            valor_almacenado={centro_vacunacion}
+                            onChange={(val) => setCentroVacunacion(val)}
                         />
 
                         {/*campo de texto para observaciones*/}
@@ -207,6 +235,12 @@ function FormularioVacunacion() {
                     </form>
                 </div>
             </div>
+            <ModalMensaje 
+                show={modalInfo.show} 
+                mensaje={modalInfo.mensaje} 
+                esError={modalInfo.esError} 
+                onClose={() => setModalInfo({ show: false, mensaje: '', esError: false })} 
+            />
         </div>
     )
 }

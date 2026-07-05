@@ -12,9 +12,29 @@ function FlujoVisualAgendamiento() {
   const reagendarData = location.state;
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setStep(1); 
+      
+      fetch(`${API_BASE}/campanas/`)
+        .then(res => res.json())
+        .then(data => {
+          setCampanas(data);
+          
+          if (reagendarData && reagendarData.campana_id) {
+            const campanaAutoseleccionada = data.find(c => c.id === reagendarData.campana_id);
+            if (campanaAutoseleccionada) {
+              handleSelectCampana(campanaAutoseleccionada);
+            }
+          }
+        })
+        .catch(err => console.error('Error cargando campañas', err));
+    }
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('user');
     setUser(null);
     setStep(0);
     setRut('');
@@ -92,7 +112,7 @@ function FlujoVisualAgendamiento() {
       const data = await res.json();
       if (res.ok) {
         setUser(data.usuario);
-        // localStorage.setItem('user', JSON.stringify(data.usuario));
+        localStorage.setItem('user', JSON.stringify(data.usuario));
         fetchCampanas();
       } else {
         setError(data.error || 'Credenciales inválidas');
@@ -294,6 +314,9 @@ function FlujoVisualAgendamiento() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1 }}>
               <Link to="/perfil" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
                 <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mi Perfil</button>
+              </Link>
+              <Link to="/historial" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Historial</button>
               </Link>
               <Link to="/mis-citas" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
                 <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mis Horas Agendadas</button>

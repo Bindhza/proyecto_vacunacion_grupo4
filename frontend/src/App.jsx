@@ -7,6 +7,7 @@ import FormularioCentro from './FomularioCentro'
 import FormularioCampana from './FormularioCampana'
 import PerfilUsuario from './PerfilUsuario'
 import MisCitas from './MisCitas'
+import HistorialVacunas from './HistorialVacunas'
 
 import FlujoVisualAgendamiento from './FlujoVisualAgendamiento'
 
@@ -34,6 +35,9 @@ function App() {
 
         {/* ruta para ver el perfil */}
         <Route path="/perfil" element={<PerfilUsuario />} />
+
+        {/* ruta para el historial */}
+        <Route path="/historial" element={<HistorialVacunas />} />
       </Routes>
     </Router>
   )

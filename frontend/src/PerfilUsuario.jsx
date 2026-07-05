@@ -11,6 +11,8 @@ function PerfilUsuario() {
 
   const [perfil, setPerfil] = useState(null);
   const [citas, setCitas] = useState([]);
+  const [historial, setHistorial] = useState([]);
+  const [historialAplicadas, setHistorialAplicadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [citaACancelar, setCitaACancelar] = useState(null);
   const [mensajeOperacion, setMensajeOperacion] = useState('');
@@ -46,6 +48,8 @@ function PerfilUsuario() {
         .then(response => {
           setPerfil(response.data.perfil);
           setCitas(response.data.citas);
+          setHistorial(response.data.historial || []);
+          setHistorialAplicadas(response.data.historial_aplicadas || []);
           setLoading(false);
         })
         .catch(error => {
@@ -188,6 +192,7 @@ function PerfilUsuario() {
             <span onClick={handleEditPhoneClick} title="Editar Teléfono"><EditIcon /></span>
           </p>
         </div>
+
       </div>
 
       {isEditingEmail && (

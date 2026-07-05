@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
 import CampoTextoOptions from './components/CampoTextoOptions'
+import ModalMensaje from './components/ModalMensaje'
 
 function FormularioCampana() {
   const [campanas, setCampanas] = useState([])
@@ -18,6 +19,7 @@ function FormularioCampana() {
   const [centrosList, setCentrosList] = useState([])
   const [vacunasList, setVacunasList] = useState([])
   const [isEditing, setIsEditing] = useState(false)
+  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -76,28 +78,35 @@ function FormularioCampana() {
   }, [])
 
   const handleDelete = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta campaña?')) {
-      axios.delete(`http://127.0.0.1:8000/api/campana_crud/${id}/`)
-        .then(() => {
-          setCampanas(campanas.filter(c => c.id_campaña !== id))
-        })
-        .catch(error => {
-          alert('Error al eliminar la campaña. Podría estar asociada a citas u otros registros.')
-          console.error(error)
-        })
-    }
+    setModalInfo({
+      show: true,
+      mensaje: '¿Estás seguro de que deseas eliminar esta campaña?',
+      esError: false,
+      esConfirm: true,
+      onConfirm: () => {
+        axios.delete(`http://127.0.0.1:8000/api/campana_crud/${id}/`)
+          .then(() => {
+            setCampanas(campanas.filter(c => c.id_campaña !== id))
+            setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })
+          })
+          .catch(error => {
+            setModalInfo({ show: true, mensaje: 'Error al eliminar la campaña. Podría estar asociada a citas u otros registros.', esError: true, esConfirm: false })
+            console.error(error)
+          })
+      }
+    });
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
     if (fechaInicio < today) {
-      alert('La fecha de inicio no puede ser en el pasado.');
+      setModalInfo({ show: true, mensaje: 'La fecha de inicio no puede ser en el pasado.', esError: true, esConfirm: false })
       return;
     }
 
     if (fechaFin <= fechaInicio) {
-      alert('La fecha de fin debe ser estrictamente posterior a la fecha de inicio.');
+      setModalInfo({ show: true, mensaje: 'La fecha de fin debe ser estrictamente posterior a la fecha de inicio.', esError: true, esConfirm: false })
       return;
     }
 
@@ -115,24 +124,24 @@ function FormularioCampana() {
     if (isEditing) {
       axios.put(`http://127.0.0.1:8000/api/campana_crud/${id}/`, nuevaCampana)
         .then(response => {
-          alert('Campaña actualizada exitosamente')
+          setModalInfo({ show: true, mensaje: 'Campaña actualizada exitosamente', esError: false, esConfirm: false })
           setCampanas(campanas.map(c => c.id_campaña === parseInt(id) ? response.data : c))
           resetForm()
         })
         .catch(error => {
           console.error('Error al actualizar campaña:', error)
-          alert('Ocurrió un error al actualizar la campaña.')
+          setModalInfo({ show: true, mensaje: 'Ocurrió un error al actualizar la campaña.', esError: true, esConfirm: false })
         })
     } else {
       axios.post('http://127.0.0.1:8000/api/campana_crud/', nuevaCampana)
         .then(response => {
-          alert('Campaña creada exitosamente')
+          setModalInfo({ show: true, mensaje: 'Campaña creada exitosamente', esError: false, esConfirm: false })
           setCampanas([...campanas, response.data])
           resetForm()
         })
         .catch(error => {
           console.error('Error al crear campaña:', error)
-          alert('Ocurrió un error al crear la campaña.')
+          setModalInfo({ show: true, mensaje: 'Ocurrió un error al crear la campaña.', esError: true, esConfirm: false })
         })
     }
   }
@@ -322,6 +331,14 @@ function FormularioCampana() {
           )}
         </div>
       </div>
+      <ModalMensaje 
+        show={modalInfo.show} 
+        mensaje={modalInfo.mensaje} 
+        esError={modalInfo.esError} 
+        esConfirm={modalInfo.esConfirm}
+        onConfirm={modalInfo.onConfirm}
+        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })} 
+      />
     </div>
   )
 }

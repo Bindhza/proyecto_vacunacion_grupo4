@@ -98,17 +98,20 @@ class Personal(Usuario):
     telefono = models.IntegerField(null=True, blank=True)
 
     #Registra una dosis y calcula el numero de dosis recibida
-    def registrar_vacuna(self, usuario_receptor, vacuna_aplicada):
+    def registrar_vacuna(self, usuario_receptor, campana_aplicada, centro, fecha, hora):
         dosis_previas = Historial.objects.filter(
             usuario=usuario_receptor, 
-            vacuna=vacuna_aplicada
+            campana=campana_aplicada
         ).count()
         
         nueva_dosis = dosis_previas + 1
         
         nuevo_registro = Historial.objects.create(
             usuario=usuario_receptor,
-            vacuna=vacuna_aplicada,
+            campana=campana_aplicada,
+            centro_vacunacion=centro,
+            fecha=fecha,
+            hora=hora,
             personal_a_cargo=self,
             dosis=nueva_dosis
         )
@@ -120,16 +123,18 @@ class Admin(Usuario):
 class Historial(models.Model):
     # Usuario que se vacuno
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE) 
-    
-    # Que vacuna se aplicó
-    vacuna = models.ForeignKey('vacunas.Vacuna', on_delete=models.PROTECT) 
+    # Campaña a la que pertenece
+    campana = models.ForeignKey('campana_vacunacion.Campaña', on_delete=models.SET_NULL, null=True)
     
     # Que personal aplicó la vacuna
-    personal_a_cargo = models.ForeignKey('Personal', on_delete=models.SET_NULL, null=True, related_name='vacunaciones_realizadas') 
+    personal_a_cargo = models.ForeignKey('Personal', on_delete=models.SET_NULL, null=True, related_name='vacunaciones_realizadas')
     
-    # Guardamos fecha y hora exacta en que se crea el registro
-    fecha = models.DateField(auto_now_add=True)
-    hora = models.TimeField(auto_now_add=True)
+    # Centro donde se realizó
+    centro_vacunacion = models.ForeignKey('campana_vacunacion.CentroVacunacion', on_delete=models.SET_NULL, null=True)
+    
+    # Guardamos fecha y hora ingresada por el personal
+    fecha = models.DateField()
+    hora = models.TimeField()
     # Numero de dosis recibida
     dosis = models.IntegerField()
 
@@ -140,6 +145,5 @@ class Historial(models.Model):
         ordering = ['-fecha', '-hora']  # Ordena desde el más reciente al más antiguo por defecto
 
     def __str__(self):
-        # Evitamos errores si la vacuna fue eliminada
-        nombre_vacuna = self.vacuna.nombre_vacuna if self.vacuna else "Vacuna Desconocida"
-        return f"{self.usuario.rut} | {nombre_vacuna} - Dosis {self.dosis} ({self.fecha})"
+        nombre_campana = self.campana.nombre_campaña if self.campana else "Campaña Desconocida"
+        return f"{self.usuario.rut} | {nombre_campana} - Dosis {self.dosis} ({self.fecha})"

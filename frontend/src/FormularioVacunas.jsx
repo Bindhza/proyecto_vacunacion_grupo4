@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
+import ModalMensaje from './components/ModalMensaje'
 
 function FormularioVacuna() {
   // 1. Estados para almacenar los datos
@@ -10,6 +11,7 @@ function FormularioVacuna() {
   const [nombre, setNombre] = useState('')   // Nombre para el formulario
   const [stock, setStock] = useState('')     // Stock para el formulario
   const [isEditing, setIsEditing] = useState(false)
+  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
 
   // 2. Petición GET al cargar la página para listar las vacunas
   useEffect(() => {
@@ -43,10 +45,10 @@ function FormularioVacuna() {
         .then(response => {
           setVacunas(vacunas.map(v => v.id_vacuna === currentId ? response.data : v))
           resetForm()
-          alert('Vacuna actualizada exitosamente.')
+          setModalInfo({ show: true, mensaje: 'Vacuna actualizada exitosamente.', esError: false, esConfirm: false })
         })
         .catch(error => {
-          alert('Error al actualizar la vacuna.')
+          setModalInfo({ show: true, mensaje: 'Error al actualizar la vacuna.', esError: true, esConfirm: false })
           console.error(error)
         })
     } else {
@@ -54,10 +56,10 @@ function FormularioVacuna() {
         .then(response => {
           setVacunas([...vacunas, response.data])
           resetForm()
-          alert('Vacuna creada exitosamente.')
+          setModalInfo({ show: true, mensaje: 'Vacuna creada exitosamente.', esError: false, esConfirm: false })
         })
         .catch(error => {
-          alert('Error al guardar la vacuna. Intenta de nuevo.')
+          setModalInfo({ show: true, mensaje: 'Error al guardar la vacuna. Intenta de nuevo.', esError: true, esConfirm: false })
           console.error(error)
         })
     }
@@ -79,16 +81,23 @@ function FormularioVacuna() {
   }
 
   const handleDelete = (id_vacuna_a_eliminar) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta vacuna?')) {
-      axios.delete(`http://127.0.0.1:8000/api/vacunas/${id_vacuna_a_eliminar}/`)
-        .then(() => {
-          setVacunas(vacunas.filter(v => v.id_vacuna !== id_vacuna_a_eliminar))
-        })
-        .catch(error => {
-          alert('Error al eliminar la vacuna. Podría estar asociada a registros existentes.')
-          console.error(error)
-        })
-    }
+    setModalInfo({
+      show: true,
+      mensaje: '¿Estás seguro de que deseas eliminar esta vacuna?',
+      esError: false,
+      esConfirm: true,
+      onConfirm: () => {
+        axios.delete(`http://127.0.0.1:8000/api/vacunas/${id_vacuna_a_eliminar}/`)
+          .then(() => {
+            setVacunas(vacunas.filter(v => v.id_vacuna !== id_vacuna_a_eliminar))
+            setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })
+          })
+          .catch(error => {
+            setModalInfo({ show: true, mensaje: 'Error al eliminar la vacuna. Podría estar asociada a registros existentes.', esError: true, esConfirm: false })
+            console.error(error)
+          })
+      }
+    });
   }
 
   return (
@@ -184,6 +193,14 @@ function FormularioVacuna() {
         )}
       </div>
       </div>
+      <ModalMensaje 
+        show={modalInfo.show} 
+        mensaje={modalInfo.mensaje} 
+        esError={modalInfo.esError} 
+        esConfirm={modalInfo.esConfirm}
+        onConfirm={modalInfo.onConfirm}
+        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })} 
+      />
     </div>
   )
 }

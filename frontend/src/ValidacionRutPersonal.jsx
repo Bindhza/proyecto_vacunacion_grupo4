@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
+import ModalMensaje from './components/ModalMensaje'
 
 function ValidacionRutPersonal() {
     //almacenamiento del estado de datos
     //validacion personal
     const [rut_personal, setRutPersonal] = useState('')
+    const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false })
     const navigate = useNavigate()
 
     const handleRutChange = (rawValue) => {
@@ -58,11 +60,11 @@ function ValidacionRutPersonal() {
                         }
                     })
                 } else {
-                    alert('El RUT ingresado no corresponde a personal de la salud. Intente nuevamente.')
+                    setModalInfo({ show: true, mensaje: 'El RUT ingresado no corresponde a personal de la salud. Intente nuevamente.', esError: true })
                 }
             })
             .catch(error => {
-                alert('El RUT ingresado no corresponde a personal de la salud. Intente nuevamente.')
+                setModalInfo({ show: true, mensaje: 'El RUT ingresado no corresponde a personal de la salud. Intente nuevamente.', esError: true })
                 console.error('Error al validar el RUT:', error)
             })
     }
@@ -108,6 +110,12 @@ function ValidacionRutPersonal() {
                     </form>
                 </div>
             </div>
+            <ModalMensaje 
+                show={modalInfo.show} 
+                mensaje={modalInfo.mensaje} 
+                esError={modalInfo.esError} 
+                onClose={() => setModalInfo({ show: false, mensaje: '', esError: false })} 
+            />
         </div>
     )
 }

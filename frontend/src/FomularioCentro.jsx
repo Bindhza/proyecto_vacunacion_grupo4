@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import CampoTextoInput from './components/CampoTextoInput'
+import ModalMensaje from './components/ModalMensaje'
 
 function FormularioCentro() {
   //estados para almacenar los datos
@@ -11,6 +12,7 @@ function FormularioCentro() {
   const [comunaCentro, setComunaCentro] = useState('')
   const [regionCentro, setRegionCentro] = useState('')
   const [isEditing, setIsEditing] = useState(false)
+  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -27,16 +29,23 @@ function FormularioCentro() {
   }, [])
 
   const handleDelete = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este centro?')) {
-      axios.delete(`http://127.0.0.1:8000/api/centro/${id}/`)
-        .then(() => {
-          setCentros(centros.filter(c => c.id_centro !== id))
-        })
-        .catch(error => {
-          alert('Error al eliminar el centro. Puede que tenga citas o personal asociado.')
-          console.error(error)
-        })
-    }
+    setModalInfo({
+      show: true,
+      mensaje: '¿Estás seguro de que deseas eliminar este centro?',
+      esError: false,
+      esConfirm: true,
+      onConfirm: () => {
+        axios.delete(`http://127.0.0.1:8000/api/centro/${id}/`)
+          .then(() => {
+            setCentros(centros.filter(c => c.id_centro !== id))
+            setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })
+          })
+          .catch(error => {
+            setModalInfo({ show: true, mensaje: 'Error al eliminar el centro. Puede que tenga citas o personal asociado.', esError: true, esConfirm: false })
+            console.error(error)
+          })
+      }
+    });
   }
 
   //petición POST al enviar el formulario para crear un centro
@@ -56,10 +65,10 @@ function FormularioCentro() {
         .then(response => {
           setCentros(centros.map(c => c.id_centro === parseInt(idCentro) ? response.data : c))
           resetForm()
-          alert('Centro actualizado exitosamente.')
+          setModalInfo({ show: true, mensaje: 'Centro actualizado exitosamente.', esError: false, esConfirm: false })
         })
         .catch(error => {
-          alert('Error al actualizar el centro.')
+          setModalInfo({ show: true, mensaje: 'Error al actualizar el centro.', esError: true, esConfirm: false })
           console.error(error)
         })
     } else {
@@ -67,10 +76,10 @@ function FormularioCentro() {
         .then(response => {
           setCentros([...centros, response.data])
           resetForm()
-          alert('Centro creado exitosamente.')
+          setModalInfo({ show: true, mensaje: 'Centro creado exitosamente.', esError: false, esConfirm: false })
         })
         .catch(error => {
-          alert('Error al guardar el centro. Asegúrate de usar un ID único.')
+          setModalInfo({ show: true, mensaje: 'Error al guardar el centro. Asegúrate de usar un ID único.', esError: true, esConfirm: false })
           console.error(error)
         })
     }
@@ -196,6 +205,14 @@ function FormularioCentro() {
         )}
       </div>
       </div>
+      <ModalMensaje 
+        show={modalInfo.show} 
+        mensaje={modalInfo.mensaje} 
+        esError={modalInfo.esError} 
+        esConfirm={modalInfo.esConfirm}
+        onConfirm={modalInfo.onConfirm}
+        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })} 
+      />
     </div>
   )
 }

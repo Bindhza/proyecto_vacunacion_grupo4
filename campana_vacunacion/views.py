@@ -186,7 +186,38 @@ def get_citas_paciente(request, rut):
             "telefono": telefono
         }
         
-        return JsonResponse({"perfil": perfil, "citas": citas_data}, safe=False)
+        historial_data = []
+        if usuario.es_paciente:
+            historial = usuario.historial_set.all().select_related('campana', 'centro_vacunacion')
+            historial_data = [{
+                "id": h.id,
+                "fecha": str(h.fecha),
+                "hora": str(h.hora)[:5],
+                "campana": h.campana.nombre_campaña if h.campana else "Desconocida",
+                "centro": h.centro_vacunacion.nombre_centro if h.centro_vacunacion else "Desconocido",
+                "dosis": h.dosis
+            } for h in historial]
+
+        historial_aplicadas_data = []
+        if usuario.es_personal:
+            historial_aplicadas = usuario.personal.vacunaciones_realizadas.all().select_related('campana', 'centro_vacunacion', 'usuario')
+            historial_aplicadas_data = [{
+                "id": h.id,
+                "fecha": str(h.fecha),
+                "hora": str(h.hora)[:5],
+                "campana": h.campana.nombre_campaña if h.campana else "Desconocida",
+                "centro": h.centro_vacunacion.nombre_centro if h.centro_vacunacion else "Desconocido",
+                "paciente_rut": h.usuario.rut,
+                "paciente_nombre": f"{h.usuario.nombres} {h.usuario.apellidos}",
+                "dosis": h.dosis
+            } for h in historial_aplicadas]
+            
+        return JsonResponse({
+            "perfil": perfil, 
+            "citas": citas_data, 
+            "historial": historial_data, 
+            "historial_aplicadas": historial_aplicadas_data
+        }, safe=False)
     except Usuario.DoesNotExist:
         return JsonResponse({"error": "Usuario no encontrado"}, status=404)
 
