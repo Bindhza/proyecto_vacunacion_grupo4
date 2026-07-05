@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
-from .models import Paciente, Usuario
+from .models import Paciente, Usuario, Personal
 from vacunas.models import Vacuna
 
 @csrf_exempt
@@ -260,3 +260,16 @@ def actualizar_telefono_view(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def get_personal_list(request):
+    try:
+        personal_users = Personal.objects.all().select_related('usuario_ptr')
+        data = [{
+            "rut": p.rut,
+            "nombres": p.nombres,
+            "apellidos": p.apellidos,
+            "id_personal": p.id_personal
+        } for p in personal_users]
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

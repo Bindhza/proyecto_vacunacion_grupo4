@@ -338,6 +338,9 @@ function FlujoVisualAgendamiento() {
                   <Link to="/formulario/centro" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
                     <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)', color: 'white' }}>Centro de Vacunación</button>
                   </Link>
+                  <Link to="/admin/historial-personal" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #3b82f6', color: 'white' }}>Historial por Personal</button>
+                  </Link>
                 </>
               )}
             </div>

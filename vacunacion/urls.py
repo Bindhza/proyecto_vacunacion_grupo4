@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from manejo_usuarios.views import login_view, actualizar_correo_view, actualizar_telefono_view
+from manejo_usuarios.views import login_view, actualizar_correo_view, actualizar_telefono_view, get_personal_list
 from campana_vacunacion.views import get_campanas, get_centros, get_citas, agendar_cita, get_citas_paciente, cancelar_cita
 
 urlpatterns = [
@@ -32,4 +32,5 @@ urlpatterns = [
     path('api/actualizar_correo/', actualizar_correo_view, name='actualizar_correo'),
     path('api/actualizar_telefono/', actualizar_telefono_view, name='actualizar_telefono'),
     path('api/paciente/<str:rut>/citas/', get_citas_paciente, name='citas_paciente'),
+    path('api/personal/', get_personal_list, name='personal_list'),
 ]

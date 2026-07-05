@@ -32,6 +32,7 @@ class FormularioVacunacionSerializer(serializers.Serializer):
     observaciones = serializers.CharField(max_length=100, required=False, allow_blank=True)
     campana = serializers.IntegerField(required=True)
     centro_vacunacion = serializers.IntegerField(required=False, allow_null=True)
+    rut_personal = serializers.CharField(max_length=12, required=False, allow_null=True, allow_blank=True)
 
     def create(self, validated_data):
         from django.db.models import Max
@@ -44,6 +45,7 @@ class FormularioVacunacionSerializer(serializers.Serializer):
             observaciones = ''
         campana_id = validated_data.get('campana')
         centro_vacunacion = validated_data.get('centro_vacunacion')
+        rut_personal = validated_data.get('rut_personal')
 
         with transaction.atomic():
             max_id = Vacunacion.objects.aggregate(Max('id_vacunacion'))['id_vacunacion__max'] or 0
@@ -72,14 +74,24 @@ class FormularioVacunacionSerializer(serializers.Serializer):
             try:
                 usuario = Usuario.objects.get(rut=id_usuario)
                 dosis_previas = Historial.objects.filter(usuario=usuario, campana_id=campana_id).count()
-                Historial.objects.create(
-                    usuario=usuario,
-                    campana_id=campana_id,
-                    centro_vacunacion_id=centro_vacunacion,
-                    fecha=fecha_vacunacion,
-                    hora=hora_vacunacion,
-                    dosis=dosis_previas + 1
-                )
+                historial_kwargs = {
+                    'usuario': usuario,
+                    'campana_id': campana_id,
+                    'centro_vacunacion_id': centro_vacunacion,
+                    'fecha': fecha_vacunacion,
+                    'hora': hora_vacunacion,
+                    'dosis': dosis_previas + 1
+                }
+                
+                if rut_personal:
+                    from manejo_usuarios.models import Personal
+                    try:
+                        personal = Personal.objects.get(rut=rut_personal)
+                        historial_kwargs['personal_a_cargo'] = personal
+                    except Personal.DoesNotExist:
+                        pass
+                        
+                Historial.objects.create(**historial_kwargs)
             except Usuario.DoesNotExist:
                 pass
 

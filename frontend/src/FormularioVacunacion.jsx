@@ -116,7 +116,8 @@ function FormularioVacunacion() {
             observaciones: observaciones,
             campana: parseInt(campana_aplicada),
             id_usuario: rut_vacunado.replace(/\./g, ''),
-            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null
+            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null,
+            rut_personal: rut_personal.replace(/\./g, '')
         }
 
         //peticion POST para guardar la vacunacion realizada
