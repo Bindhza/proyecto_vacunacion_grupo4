@@ -12,30 +12,9 @@ function FlujoVisualAgendamiento() {
   const reagendarData = location.state;
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setStep(1); 
-      
-      fetch(`${API_BASE}/campanas/`)
-        .then(res => res.json())
-        .then(data => {
-          setCampanas(data);
-          
-          // Si estamos reagendando y tenemos el campana_id, autoseleccionamos la campaña
-          if (reagendarData && reagendarData.campana_id) {
-            const campanaAutoseleccionada = data.find(c => c.id === reagendarData.campana_id);
-            if (campanaAutoseleccionada) {
-              handleSelectCampana(campanaAutoseleccionada);
-            }
-          }
-        })
-        .catch(err => console.error('Error cargando campañas', err));
-    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
     setUser(null);
     setStep(0);
     setRut('');
@@ -48,13 +27,13 @@ function FlujoVisualAgendamiento() {
   const toggleMenu = () => {
     setMenuAbierto(!menuAbierto);
   };
-  
+
   const [campanas, setCampanas] = useState([]);
   const [selectedCampana, setSelectedCampana] = useState(null);
-  
+
   const [centros, setCentros] = useState([]);
   const [selectedCentro, setSelectedCentro] = useState(null);
-  
+
   const [citas, setCitas] = useState([]);
   const [selectedCita, setSelectedCita] = useState(null);
   const [modalError, setModalError] = useState('');
@@ -66,7 +45,7 @@ function FlujoVisualAgendamiento() {
       [fecha]: !prev[fecha]
     }));
   };
-  
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -77,7 +56,7 @@ function FlujoVisualAgendamiento() {
       return;
     }
     const cleanRut = rawValue.replace(/[^0-9kK]/g, '').toUpperCase();
-    
+
     // Límite de 9 caracteres para el RUT (cuerpo + DV)
     if (cleanRut.length > 9) {
       return;
@@ -113,7 +92,7 @@ function FlujoVisualAgendamiento() {
       const data = await res.json();
       if (res.ok) {
         setUser(data.usuario);
-        localStorage.setItem('user', JSON.stringify(data.usuario));
+        // localStorage.setItem('user', JSON.stringify(data.usuario));
         fetchCampanas();
       } else {
         setError(data.error || 'Credenciales inválidas');
@@ -145,7 +124,7 @@ function FlujoVisualAgendamiento() {
       const res = await fetch(`${API_BASE}/campanas/${campana.id}/centros/`);
       const data = await res.json();
       setCentros(data);
-      
+
       if (reagendarData && reagendarData.centro_id) {
         const centroAutoseleccionado = data.find(c => c.id === reagendarData.centro_id);
         if (centroAutoseleccionado) {
@@ -206,6 +185,13 @@ function FlujoVisualAgendamiento() {
     setLoading(false);
   };
 
+  const citasValidas = citas.filter(c => {
+    const citaDateTime = new Date(`${c.fecha}T${c.hora}`);
+    const now = new Date();
+    const hoursDiff = (citaDateTime - now) / (1000 * 60 * 60);
+    return c.cupos > 0 && hoursDiff >= 2;
+  });
+
   return (
     <div className="bpmn-interface-root">
       {/* Navegación superior si el usuario está logueado */}
@@ -215,7 +201,7 @@ function FlujoVisualAgendamiento() {
             <div>
               <strong style={{ fontSize: '1.1rem', color: 'white' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
             </div>
-            <button 
+            <button
               onClick={toggleMenu}
               style={{
                 width: '40px',
@@ -246,7 +232,7 @@ function FlujoVisualAgendamiento() {
 
           {/* Sidebar Overlay */}
           {menuAbierto && (
-            <div 
+            <div
               style={{
                 position: 'fixed',
                 top: 0,
@@ -261,7 +247,7 @@ function FlujoVisualAgendamiento() {
           )}
 
           {/* Sidebar Drawer */}
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -283,7 +269,7 @@ function FlujoVisualAgendamiento() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
               <h2 style={{ margin: 0, color: 'white', fontSize: '1.5rem' }}>Opciones</h2>
-              <button 
+              <button
                 onClick={toggleMenu}
                 style={{
                   width: '35px',
@@ -365,12 +351,12 @@ function FlujoVisualAgendamiento() {
           <div>
             <h2>{reagendarData ? 'Reagendando tu hora' : 'Selecciona una Campaña'}</h2>
             <p className="subtitle">
-              {reagendarData 
+              {reagendarData
                 ? `Hola ${user?.nombres}, selecciona el centro y el nuevo horario`
                 : `Hola ${user?.nombres}, ¿Para qué campaña deseas agendar?`
               }
             </p>
-            {campanas.length === 0 ? <p style={{textAlign: 'center'}}>No hay campañas vigentes en este momento.</p> : null}
+            {campanas.length === 0 ? <p style={{ textAlign: 'center' }}>No hay campañas vigentes en este momento.</p> : null}
             {campanas.map(c => (
               <div key={c.id} className="list-item" onClick={() => handleSelectCampana(c)}>
                 <h3>{c.nombre}</h3>
@@ -385,14 +371,14 @@ function FlujoVisualAgendamiento() {
           <div>
             <h2>Centros Disponibles</h2>
             <p className="subtitle">Selecciona el centro de vacunación</p>
-            {centros.length === 0 ? <p style={{textAlign: 'center'}}>No hay centros con cupos disponibles para esta campaña.</p> : null}
+            {centros.length === 0 ? <p style={{ textAlign: 'center' }}>No hay centros con cupos disponibles para esta campaña.</p> : null}
             {centros.map(c => (
               <div key={c.id} className="list-item" onClick={() => handleSelectCentro(c)}>
                 <h3>{c.nombre}</h3>
                 <p>{c.direccion}</p>
               </div>
             ))}
-            {!reagendarData && <button onClick={() => setStep(1)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Campañas</button>}
+            {!reagendarData && <button onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid var(--glass-border)' }}>Volver a Campañas</button>}
           </div>
         )}
 
@@ -400,99 +386,99 @@ function FlujoVisualAgendamiento() {
           <div>
             <h2>Horarios Disponibles</h2>
             <p className="subtitle">Selecciona tu hora preferida en {selectedCentro?.nombre}</p>
-            {citas.length === 0 ? <p style={{textAlign: 'center'}}>No hay horarios disponibles.</p> : null}
-            
-            {Object.entries(citas.reduce((acc, c) => {
-                if (!acc[c.fecha]) acc[c.fecha] = [];
-                acc[c.fecha].push(c);
-                return acc;
-            }, {})).map(([fecha, citasDelDia]) => {
-                const dateObj = new Date(fecha + "T00:00:00");
-                const formattedDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-                return (
-                  <div key={fecha} style={{ marginBottom: '30px', textAlign: 'left', background: 'rgba(15, 23, 42, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
-                      <h3 
-                        onClick={() => toggleDate(fecha)}
-                        style={{ cursor: 'pointer', textTransform: 'capitalize', marginBottom: '15px', color: 'var(--text-main)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                      >
-                          {formattedDate}
-                          <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>
-                            {expandedDates[fecha] ? '▲ Ocultar' : '▼ Ver Horarios'}
-                          </span>
-                      </h3>
-                      {expandedDates[fecha] && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                            {citasDelDia.map(c => {
-                                const isSelected = selectedCita && selectedCita.id === c.id;
-                                const isAvailable = c.cupos > 0;
-                                
-                                let bg = isAvailable ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)';
-                                let borderCol = isAvailable ? '#10b981' : '#4b5563';
-                                let textCol = isAvailable ? '#10b981' : '#9ca3af';
-                                
-                                if (isSelected) {
-                                    bg = 'var(--primary)'; // Azul/Morado
-                                    borderCol = 'var(--primary)';
-                                    textCol = 'white';
-                                }
+            {citasValidas.length === 0 ? <p style={{ textAlign: 'center' }}>No hay horarios disponibles.</p> : null}
 
-                                return (
-                                    <button
-                                        key={c.id}
-                                        onClick={() => {
-                                          if (isAvailable) setSelectedCita(c);
-                                        }}
-                                        disabled={!isAvailable}
-                                        style={{
-                                            padding: '12px 5px',
-                                            borderRadius: '8px',
-                                            fontSize: '1rem',
-                                            fontWeight: 'bold',
-                                            cursor: isAvailable ? 'pointer' : 'not-allowed',
-                                            border: `2px solid ${borderCol}`,
-                                            transition: 'all 0.2s ease',
-                                            backgroundColor: bg,
-                                            color: textCol,
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        {c.hora}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                      )}
-                  </div>
-                );
+            {Object.entries(citasValidas.reduce((acc, c) => {
+              if (!acc[c.fecha]) acc[c.fecha] = [];
+              acc[c.fecha].push(c);
+              return acc;
+            }, {})).map(([fecha, citasDelDia]) => {
+              const dateObj = new Date(fecha + "T00:00:00");
+              const formattedDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+              return (
+                <div key={fecha} style={{ marginBottom: '30px', textAlign: 'left', background: 'rgba(15, 23, 42, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                  <h3
+                    onClick={() => toggleDate(fecha)}
+                    style={{ cursor: 'pointer', textTransform: 'capitalize', marginBottom: '15px', color: 'var(--text-main)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
+                    {formattedDate}
+                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>
+                      {expandedDates[fecha] ? '▲ Ocultar' : '▼ Ver Horarios'}
+                    </span>
+                  </h3>
+                  {expandedDates[fecha] && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                      {citasDelDia.map(c => {
+                        const isSelected = selectedCita && selectedCita.id === c.id;
+                        const isAvailable = true; // ya fueron filtrados
+
+                        let bg = isAvailable ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)';
+                        let borderCol = isAvailable ? '#10b981' : '#4b5563';
+                        let textCol = isAvailable ? '#10b981' : '#9ca3af';
+
+                        if (isSelected) {
+                          bg = 'var(--primary)'; // Azul/Morado
+                          borderCol = 'var(--primary)';
+                          textCol = 'white';
+                        }
+
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              if (isAvailable) setSelectedCita(c);
+                            }}
+                            disabled={!isAvailable}
+                            style={{
+                              padding: '12px 5px',
+                              borderRadius: '8px',
+                              fontSize: '1rem',
+                              fontWeight: 'bold',
+                              cursor: isAvailable ? 'pointer' : 'not-allowed',
+                              border: `2px solid ${borderCol}`,
+                              transition: 'all 0.2s ease',
+                              backgroundColor: bg,
+                              color: textCol,
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {c.hora}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
             })}
-            
+
             {selectedCita && (
-              <button 
-                onClick={handleAgendar} 
+              <button
+                onClick={handleAgendar}
                 style={{ width: '100%', padding: '15px', fontSize: '1.1rem', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '15px', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' }}
               >
                 Confirmar Hora: {selectedCita.fecha} a las {selectedCita.hora}
               </button>
             )}
 
-            {!reagendarData && <button onClick={() => setStep(2)} style={{background: 'transparent', border: '1px solid var(--glass-border)', width: '100%'}}>Volver a Centros</button>}
+            {!reagendarData && <button onClick={() => setStep(2)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', width: '100%' }}>Volver a Centros</button>}
             {error && <p className="error-message">{error}</p>}
           </div>
         )}
 
         {step === 4 && (
           <div className="success-message">
-            <svg style={{width:'80px', height:'80px', margin:'0 auto', display:'block', color:'var(--accent)'}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg style={{ width: '80px', height: '80px', margin: '0 auto', display: 'block', color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <h2>¡Cita Agendada!</h2>
             <p>Tu cita ha sido confirmada exitosamente.</p>
-            <div style={{background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '12px', marginTop: '20px', textAlign: 'left'}}>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '12px', marginTop: '20px', textAlign: 'left' }}>
               <p><strong>Campaña:</strong> {selectedCampana?.nombre}</p>
               <p><strong>Centro:</strong> {selectedCentro?.nombre}</p>
               <p><strong>Fecha y Hora:</strong> {selectedCita?.fecha} a las {selectedCita?.hora}</p>
             </div>
-            <button onClick={() => setStep(1)} style={{marginTop: '30px'}}>Agendar otra cita</button>
+            <button onClick={() => setStep(1)} style={{ marginTop: '30px' }}>Agendar otra cita</button>
           </div>
         )}
       </div>
