@@ -69,24 +69,28 @@ def get_citas(request, campana_id, centro_id):
                 fecha_actual += timedelta(days=1)
             Cita.objects.bulk_create(citas_to_create)
 
-        citas = campana.verificar_horarios_y_cupos(centro)
+        # Obtener TODAS las citas para este centro y campaña (disponibles y ocupadas)
+        todas_citas = Cita.objects.filter(campana=campana, centro_vacunacion=centro)
         
-        # Agrupar las citas por fecha y hora para no enviar cientos de items repetidos al frontend
+        # Agrupar las citas por fecha y hora
         agrupados = {}
-        for c in citas:
+        for c in todas_citas:
             key = f"{c.fecha_cita}_{c.hora_cita}"
             if key not in agrupados:
                 agrupados[key] = {
                     "id": c.id_cita, # enviamos un ID representativo del bloque
                     "fecha": str(c.fecha_cita),
-                    "hora": str(c.hora_cita),
-                    "cupos": 1
+                    "hora": str(c.hora_cita)[:5], # Formato HH:MM
+                    "cupos": 1 if c.estado_cita else 0
                 }
             else:
-                agrupados[key]["cupos"] += 1
+                if c.estado_cita:
+                    agrupados[key]["cupos"] += 1
                 
-        # Solo enviar horarios que tengan cupos > 0
+        # Enviar todos los horarios (con cupos y sin cupos)
         data = list(agrupados.values())
+        # Ordenar por fecha y luego por hora
+        data.sort(key=lambda x: (x["fecha"], x["hora"]))
         return JsonResponse(data, safe=False)
     except (Campaña.DoesNotExist, CentroVacunacion.DoesNotExist):
         return JsonResponse({"error": "No encontrado"}, status=404)
@@ -110,6 +114,24 @@ def agendar_cita(request):
                 paciente_obj = Paciente.objects.get(rut=rut_paciente)
 
             cita = Cita.objects.get(id_cita=cita_id)
+
+            cita_a_cancelar = body.get('cita_a_cancelar')
+            
+            # Validación: una hora por día
+            citas_mismo_dia = Cita.objects.filter(paciente_citado=paciente_obj, fecha_cita=cita.fecha_cita)
+            if cita_a_cancelar:
+                citas_mismo_dia = citas_mismo_dia.exclude(id_cita=cita_a_cancelar)
+            
+            if citas_mismo_dia.exists():
+                return JsonResponse({"error": "Solo se permite agendar una hora por día."}, status=400)
+
+            # Validación: una hora por campaña (no agendar otra cita para la misma campaña)
+            citas_misma_campana = Cita.objects.filter(paciente_citado=paciente_obj, campana=cita.campana)
+            if cita_a_cancelar:
+                citas_misma_campana = citas_misma_campana.exclude(id_cita=cita_a_cancelar)
+            
+            if citas_misma_campana.exists():
+                return JsonResponse({"error": "Ya tienes una cita agendada para esta campaña en otra fecha."}, status=400)
 
             if cita.agendar(paciente_obj):
                 # Si se pasó una cita para reagendar, la cancelamos ahora que el reagendamiento fue exitoso

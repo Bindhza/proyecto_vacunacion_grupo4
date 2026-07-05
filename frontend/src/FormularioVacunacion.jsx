@@ -98,14 +98,13 @@ function FormularioVacunacion() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        // se prepara la subida de la nueva vacunacion
+        // se prepara la subida de la nueva vacunacion (sin id_vacunacion, se autogenera en backend)
         const nuevaVacunacion = {
-            id_vacunacion: parseInt(id_vacunacion),
             fecha_vacunacion: fecha_vacunacion,
             observaciones: observaciones,
             vacuna_aplicada: parseInt(vacuna_aplicada),
             id_usuario: rut_vacunado.replace(/\./g, ''),
-            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null, // se aplicará después
+            centro_vacunacion: centro_vacunacion ? parseInt(centro_vacunacion) : null,
             id_campaña: id_campania ? parseInt(id_campania) : null
         }
 
@@ -121,7 +120,7 @@ function FormularioVacunacion() {
                 alert('Registro de vacunación guardado exitosamente.')
             })
             .catch(error => {
-                alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
+                alert('Error al guardar el registro. Intenta nuevamente.')
                 console.error(error)
             })
     }
@@ -156,13 +155,6 @@ function FormularioVacunacion() {
                     <p className="subtitle">Registrar Vacunación</p>
                     <form onSubmit={handleSubmit}>
                         {/* componente CampoTexto */}
-                        <CampoTextoInput
-                            mensaje="ID Vacunacion"
-                            tipo_dato="text"
-                            ejemplo="Ej. 1"
-                            valor_almacenado={id_vacunacion}
-                            onChange={(val) => setIdVacunacion(val)}
-                        />
                         <CampoTextoInput
                             mensaje="Rut Vacunado"
                             tipo_dato="text"

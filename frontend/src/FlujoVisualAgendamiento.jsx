@@ -57,6 +57,15 @@ function FlujoVisualAgendamiento() {
   
   const [citas, setCitas] = useState([]);
   const [selectedCita, setSelectedCita] = useState(null);
+  const [modalError, setModalError] = useState('');
+  const [expandedDates, setExpandedDates] = useState({});
+
+  const toggleDate = (fecha) => {
+    setExpandedDates(prev => ({
+      ...prev,
+      [fecha]: !prev[fecha]
+    }));
+  };
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -160,6 +169,7 @@ function FlujoVisualAgendamiento() {
       const res = await fetch(`${API_BASE}/campanas/${cId}/centros/${centro.id}/citas/`);
       const data = await res.json();
       setCitas(data);
+      setExpandedDates({}); // Asegura que todos los desplegables empiecen cerrados
       setStep(3);
     } catch (err) {
       setError('Error cargando horarios');
@@ -167,12 +177,12 @@ function FlujoVisualAgendamiento() {
     setLoading(false);
   };
 
-  const handleAgendar = async (cita) => {
-    setSelectedCita(cita);
+  const handleAgendar = async () => {
+    if (!selectedCita) return;
     setLoading(true);
 
     try {
-      const payload = { cita_id: cita.id, rut_paciente: user.rut };
+      const payload = { cita_id: selectedCita.id, rut_paciente: user.rut };
       if (reagendarData && reagendarData.citaACancelarAlReagendar) {
         payload.cita_a_cancelar = reagendarData.citaACancelarAlReagendar;
       }
@@ -186,10 +196,12 @@ function FlujoVisualAgendamiento() {
       if (res.ok) {
         setStep(4);
       } else {
-        setError(data.error || 'Error al agendar');
+        setModalError(data.error || 'Ya tienes una hora agendada para este día o ocurrió un error.');
+        setError('');
       }
     } catch (err) {
-      setError('Error de conexión');
+      setModalError('Error de conexión al intentar agendar.');
+      setError('');
     }
     setLoading(false);
   };
@@ -297,6 +309,9 @@ function FlujoVisualAgendamiento() {
               <Link to="/perfil" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
                 <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mi Perfil</button>
               </Link>
+              <Link to="/mis-citas" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mis Horas Agendadas</button>
+              </Link>
 
               {user.rol === 'Personal' && (
                 <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
@@ -386,25 +401,83 @@ function FlujoVisualAgendamiento() {
             <h2>Horarios Disponibles</h2>
             <p className="subtitle">Selecciona tu hora preferida en {selectedCentro?.nombre}</p>
             {citas.length === 0 ? <p style={{textAlign: 'center'}}>No hay horarios disponibles.</p> : null}
-            {citas.map(c => (
-              <div key={c.id} className="list-item" onClick={() => handleAgendar(c)}>
-                <h3>{c.fecha}</h3>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <p>Hora: {c.hora}</p>
-                  <span style={{ 
-                    background: 'rgba(16, 185, 129, 0.2)', 
-                    color: '#10b981', 
-                    padding: '4px 10px', 
-                    borderRadius: '12px', 
-                    fontSize: '0.8rem',
-                    fontWeight: 'bold'
-                  }}>
-                    {c.cupos} cupos disponibles
-                  </span>
-                </div>
-              </div>
-            ))}
-            {!reagendarData && <button onClick={() => setStep(2)} style={{background: 'transparent', border: '1px solid var(--glass-border)'}}>Volver a Centros</button>}
+            
+            {Object.entries(citas.reduce((acc, c) => {
+                if (!acc[c.fecha]) acc[c.fecha] = [];
+                acc[c.fecha].push(c);
+                return acc;
+            }, {})).map(([fecha, citasDelDia]) => {
+                const dateObj = new Date(fecha + "T00:00:00");
+                const formattedDate = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+                return (
+                  <div key={fecha} style={{ marginBottom: '30px', textAlign: 'left', background: 'rgba(15, 23, 42, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                      <h3 
+                        onClick={() => toggleDate(fecha)}
+                        style={{ cursor: 'pointer', textTransform: 'capitalize', marginBottom: '15px', color: 'var(--text-main)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      >
+                          {formattedDate}
+                          <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>
+                            {expandedDates[fecha] ? '▲ Ocultar' : '▼ Ver Horarios'}
+                          </span>
+                      </h3>
+                      {expandedDates[fecha] && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                            {citasDelDia.map(c => {
+                                const isSelected = selectedCita && selectedCita.id === c.id;
+                                const isAvailable = c.cupos > 0;
+                                
+                                let bg = isAvailable ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)';
+                                let borderCol = isAvailable ? '#10b981' : '#4b5563';
+                                let textCol = isAvailable ? '#10b981' : '#9ca3af';
+                                
+                                if (isSelected) {
+                                    bg = 'var(--primary)'; // Azul/Morado
+                                    borderCol = 'var(--primary)';
+                                    textCol = 'white';
+                                }
+
+                                return (
+                                    <button
+                                        key={c.id}
+                                        onClick={() => {
+                                          if (isAvailable) setSelectedCita(c);
+                                        }}
+                                        disabled={!isAvailable}
+                                        style={{
+                                            padding: '12px 5px',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: isAvailable ? 'pointer' : 'not-allowed',
+                                            border: `2px solid ${borderCol}`,
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: bg,
+                                            color: textCol,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}
+                                    >
+                                        {c.hora}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                      )}
+                  </div>
+                );
+            })}
+            
+            {selectedCita && (
+              <button 
+                onClick={handleAgendar} 
+                style={{ width: '100%', padding: '15px', fontSize: '1.1rem', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '15px', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' }}
+              >
+                Confirmar Hora: {selectedCita.fecha} a las {selectedCita.hora}
+              </button>
+            )}
+
+            {!reagendarData && <button onClick={() => setStep(2)} style={{background: 'transparent', border: '1px solid var(--glass-border)', width: '100%'}}>Volver a Centros</button>}
             {error && <p className="error-message">{error}</p>}
           </div>
         )}
@@ -423,6 +496,19 @@ function FlujoVisualAgendamiento() {
           </div>
         )}
       </div>
+
+      {modalError && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="glass-container" style={{ padding: '30px', maxWidth: '400px', width: '90%', textAlign: 'center', background: 'rgba(15, 23, 42, 0.98)', border: '1px solid #ef4444', boxShadow: '0 8px 32px rgba(239, 68, 68, 0.3)' }}>
+            <h3 style={{ marginBottom: '15px', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Acción No Permitida
+            </h3>
+            <p style={{ marginBottom: '25px', color: 'white', fontSize: '1.1rem' }}>{modalError}</p>
+            <button onClick={() => setModalError('')} style={{ background: '#ef4444', border: 'none', padding: '10px 30px', fontWeight: 'bold' }}>Entendido</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

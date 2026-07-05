@@ -25,16 +25,23 @@ function FormularioVacuna() {
   const handleSubmit = (e) => {
     e.preventDefault()
 
+    let currentId = parseInt(id)
+    if (!isEditing) {
+      // Auto-increment: busca el ID máximo actual y suma 1
+      const maxId = vacunas.length > 0 ? Math.max(...vacunas.map(v => v.id_vacuna)) : 0
+      currentId = maxId + 1
+    }
+
     const nuevaVacuna = {
-      id_vacuna: parseInt(id),
+      id_vacuna: currentId,
       nombre_vacuna: nombre,
       stock_disponible: parseInt(stock)
     }
 
     if (isEditing) {
-      axios.put(`http://127.0.0.1:8000/api/vacunas/${id}/`, nuevaVacuna)
+      axios.put(`http://127.0.0.1:8000/api/vacunas/${currentId}/`, nuevaVacuna)
         .then(response => {
-          setVacunas(vacunas.map(v => v.id_vacuna === parseInt(id) ? response.data : v))
+          setVacunas(vacunas.map(v => v.id_vacuna === currentId ? response.data : v))
           resetForm()
           alert('Vacuna actualizada exitosamente.')
         })
@@ -50,7 +57,7 @@ function FormularioVacuna() {
           alert('Vacuna creada exitosamente.')
         })
         .catch(error => {
-          alert('Error al guardar la vacuna. Asegúrate de usar un ID único.')
+          alert('Error al guardar la vacuna. Intenta de nuevo.')
           console.error(error)
         })
     }
@@ -71,11 +78,11 @@ function FormularioVacuna() {
     window.scrollTo(0, 0)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = (id_vacuna_a_eliminar) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta vacuna?')) {
-      axios.delete(`http://127.0.0.1:8000/api/vacunas/${id}/`)
+      axios.delete(`http://127.0.0.1:8000/api/vacunas/${id_vacuna_a_eliminar}/`)
         .then(() => {
-          setVacunas(vacunas.filter(v => v.id_vacuna !== id))
+          setVacunas(vacunas.filter(v => v.id_vacuna !== id_vacuna_a_eliminar))
         })
         .catch(error => {
           alert('Error al eliminar la vacuna. Podría estar asociada a registros existentes.')
@@ -113,13 +120,12 @@ function FormularioVacuna() {
       <div>
         <p className="subtitle">{isEditing ? 'Editar Vacuna' : 'Registrar Nueva Vacuna'}</p>
         <form onSubmit={handleSubmit}>
-          <CampoTextoInput
-            mensaje="ID Vacuna (No se puede cambiar si editas)"
-            tipo_dato="number"
-            ejemplo="Ej. 1"
-            valor_almacenado={id}
-            onChange={(val) => !isEditing && setId(val)} // previene cambiar id en edicion
-          />
+          {isEditing && (
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>ID de Vacuna (Modo Edición)</label>
+              <input type="text" value={id} disabled style={{ backgroundColor: 'rgba(255,255,255,0.1)', cursor: 'not-allowed', color: '#94a3b8' }} />
+            </div>
+          )}
           <CampoTextoInput
             mensaje="Nombre"
             tipo_dato="text"

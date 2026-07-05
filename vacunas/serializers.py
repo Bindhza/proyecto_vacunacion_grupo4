@@ -25,7 +25,7 @@ class VacunacionPorCampañaSerializer(serializers.ModelSerializer):
         fields = ['id_vacunacion', 'id_campaña']
 
 class FormularioVacunacionSerializer(serializers.Serializer):
-    id_vacunacion = serializers.IntegerField(required=True)
+    id_vacunacion = serializers.IntegerField(required=False, allow_null=True)
     id_usuario = serializers.CharField(max_length=12, required=True)
     fecha_vacunacion = serializers.DateField(required=True)
     observaciones = serializers.CharField(max_length=100, required=False, allow_blank=True)
@@ -34,9 +34,9 @@ class FormularioVacunacionSerializer(serializers.Serializer):
     id_campaña = serializers.IntegerField(required=False, allow_null=True)
 
     def create(self, validated_data):
+        from django.db.models import Max
 
         #extraer los datos del formulario enviado por el frontend
-        id_vacunacion = validated_data.get('id_vacunacion')
         id_usuario = validated_data.get('id_usuario')
         fecha_vacunacion = validated_data.get('fecha_vacunacion')
         observaciones = validated_data.get('observaciones')
@@ -48,9 +48,12 @@ class FormularioVacunacionSerializer(serializers.Serializer):
         #si una operacion falla, se revierten todo
         with transaction.atomic():
 
+            max_id = Vacunacion.objects.aggregate(Max('id_vacunacion'))['id_vacunacion__max'] or 0
+            new_id = max_id + 1
+
             #crear vacunacion
             vacunacion = Vacunacion.objects.create(
-                id_vacunacion=id_vacunacion,
+                id_vacunacion=new_id,
                 fecha_vacunacion=fecha_vacunacion,
                 observaciones=observaciones,
                 vacuna_aplicada_id=vacuna_aplicada,

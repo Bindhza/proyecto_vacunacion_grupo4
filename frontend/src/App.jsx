@@ -6,6 +6,7 @@ import FormularioVacunacion from './FormularioVacunacion'
 import FormularioCentro from './FomularioCentro'
 import FormularioCampana from './FormularioCampana'
 import PerfilUsuario from './PerfilUsuario'
+import MisCitas from './MisCitas'
 
 import FlujoVisualAgendamiento from './FlujoVisualAgendamiento'
 
@@ -28,7 +29,10 @@ function App() {
         {/* ruta del formulario para agregar campañas */}
         <Route path="/formulario/campana" element={<FormularioCampana />} />
 
-        {/* ruta para ver el perfil y citas agendadas */}
+        {/* ruta para ver las horas agendadas (citas) */}
+        <Route path="/mis-citas" element={<MisCitas />} />
+
+        {/* ruta para ver el perfil */}
         <Route path="/perfil" element={<PerfilUsuario />} />
       </Routes>
     </Router>
