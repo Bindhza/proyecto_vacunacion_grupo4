@@ -1,10 +1,18 @@
+from vacunacion.mails import enviar_correo_confirmacion
 import json
+# pyrefly: ignore [missing-import]
 from django.shortcuts import render
+# pyrefly: ignore [missing-import]
 from django.http import JsonResponse
+# pyrefly: ignore [missing-import]
 from django.views.decorators.csrf import csrf_exempt
+# pyrefly: ignore [missing-import]
 from rest_framework import viewsets
+# pyrefly: ignore [missing-import]
 from .models import Campaña, CentroVacunacion, Cita
+# pyrefly: ignore [missing-import]
 from .serializers import CentroVacunacionSerializer, CampañaSerializer
+# pyrefly: ignore [missing-import]
 from manejo_usuarios.models import Paciente, Usuario
 
 # Create your views here.
@@ -108,6 +116,7 @@ def agendar_cita(request):
             except Paciente.DoesNotExist:
                 # Si el usuario es Personal o Admin, no existe en la tabla Paciente.
                 # Lo extendemos insertando su registro en la tabla hija Paciente.
+                # pyrefly: ignore [missing-import]
                 from django.db import connection
                 with connection.cursor() as cursor:
                     cursor.execute("INSERT INTO manejo_usuarios_paciente (usuario_ptr_id, telefono) VALUES (%s, 0)", [rut_paciente])
@@ -144,7 +153,28 @@ def agendar_cita(request):
                             vieja_cita.cancelar()
                     except Cita.DoesNotExist:
                         pass
+
+                # intenta enviar correo mediante un try, si la creacion del paciente no es correcta, no se envia el correo
+                # si no se envia el mail no se cancela la cita
+                try:
+                    nombre_paciente = f"{paciente_obj.nombres} {paciente_obj.apellidos}"
+                    nombre_vacuna = cita.campana.nombre_campaña if cita.campana else "Campaña de Vacunación"
+                    centro_nombre = cita.centro_vacunacion.nombre_centro if cita.centro_vacunacion else "Centro de Vacunación"
+                    centro_direccion = cita.centro_vacunacion.obtener_direccion_completa_centro() if cita.centro_vacunacion else "Dirección no registrada"
+
+                    enviar_correo_confirmacion(
+                        email_destino="be.pobletecastillo@gmail.com",
+                        nombre_paciente=nombre_paciente,
+                        nombre_vacuna=nombre_vacuna,
+                        cita_fecha=str(cita.fecha_cita),
+                        cita_hora=str(cita.hora_cita),
+                        centro_nombre=centro_nombre,
+                        centro_direccion=centro_direccion
+                    )
+                except Exception as mail_error:
+                    print(f"Error enviando correo de confirmación: {mail_error}")
                 return JsonResponse({"mensaje": "Cita agendada exitosamente"})
+
             else:
                 return JsonResponse({"error": "La cita ya no está disponible"}, status=400)
         except Exception as e:

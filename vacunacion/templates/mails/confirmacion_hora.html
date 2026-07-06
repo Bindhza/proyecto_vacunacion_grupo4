@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Cita de Vacunación</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #334155;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f6f9; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color: #1e3a8a; padding: 40px 20px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Confirmación de Tu Cita</h1>
+                            <p style="margin: 10px 0 0 0; color: #93c5fd; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Sistema de Gestión de Vacunación</p>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #334155;">
+                                Hola <strong>{{ paciente_nombre }}</strong>,
+                            </p>
+                            <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #475569;">
+                                Tu cita para recibir la vacuna ha sido agendada correctamente. A continuación, te presentamos los detalles del bloque reservado:
+                            </p>
+                            
+                            <!-- Details Box -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td width="30%" style="padding-bottom: 10px; font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase;">Vacuna:</td>
+                                                <td width="70%" style="padding-bottom: 10px; font-size: 15px; font-weight: 600; color: #1e293b;">{{ vacuna_nombre }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-bottom: 10px; font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase;">Fecha:</td>
+                                                <td style="padding-bottom: 10px; font-size: 15px; color: #1e293b;">{{ cita_fecha }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-bottom: 10px; font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase;">Hora:</td>
+                                                <td style="padding-bottom: 10px; font-size: 15px; color: #1e293b;">{{ cita_hora }} hrs.</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-bottom: 10px; font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase;">Centro:</td>
+                                                <td style="padding-bottom: 10px; font-size: 15px; color: #1e293b; font-weight: 600;">{{ centro_nombre }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase;">Dirección:</td>
+                                                <td style="font-size: 15px; color: #1e293b;">{{ centro_direccion }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 25px 0; font-size: 15px; line-height: 1.6; color: #475569;">
+                                Si necesitas modificar o cancelar esta hora por motivos de fuerza mayor, por favor ingresa a nuestra plataforma con anticipación.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;">Este es un correo automático, por favor no respondas directamente a este mensaje.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

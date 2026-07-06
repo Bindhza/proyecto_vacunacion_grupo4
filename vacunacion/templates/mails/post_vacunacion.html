@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Vacunación e Información Post-Inoculación</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #334155;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f6f9; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color: #059669; padding: 40px 20px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">¡Vacunación Registrada de Forma Exitosa!</h1>
+                            <p style="margin: 10px 0 0 0; color: #a7f3d0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Proceso Completado</p>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #334155;">
+                                Hola <strong>{{ paciente_nombre }}</strong>,
+                            </p>
+                            <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #475569;">
+                                Confirmamos que has recibido exitosamente la vacuna <strong>{{ vacuna_nombre }}</strong> el día {{ cita_fecha }} en el centro {{ centro_nombre }}. Tu registro ha quedado actualizado en el sistema de salud nacional.
+                            </p>
+
+                            <!-- Care and Symptoms Section -->
+                            <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 700; color: #1e293b;">Síntomas comunes y cuidados post-vacunación:</h3>
+                            <p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.5; color: #475569;">
+                                Es normal experimentar algunas reacciones corporales leves dentro de las próximas 24 a 48 horas. Monitorea los siguientes aspectos:
+                            </p>
+                            
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 25px;">
+                                <tr>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                        <strong style="color: #065f46; font-size: 14px;">Reacciones locales:</strong><br>
+                                        <span style="font-size: 14px; color: #475569;">Dolor, enrojecimiento o inflamación leve en el área de la inyección. Aplica una compresa fría y limpia si es necesario.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                        <strong style="color: #065f46; font-size: 14px;">Síntomas generales leves:</strong><br>
+                                        <span style="font-size: 14px; color: #475569;">Fiebre baja, cansancio, dolor de cabeza o muscular moderado. Mantente hidratado y descansa adecuadamente.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 0;">
+                                        <strong style="color: #b91c1c; font-size: 14px;">Cuándo consultar a urgencias:</strong><br>
+                                        <span style="font-size: 14px; color: #475569;">En caso de presentar reacciones alérgicas severas (dificultad para respirar, hinchazón de rostro o garganta) o fiebre alta persistente por más de 72 horas.</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;">Gracias por contribuir activamente a la inmunidad colectiva.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
