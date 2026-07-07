@@ -7,6 +7,7 @@ function FlujoVisualAgendamiento() {
   const [step, setStep] = useState(0); // 0: Login, 1: Campaña, 2: Centro, 3: Horario, 4: Success
   const [user, setUser] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
 
   const location = useLocation();
   const reagendarData = location.state;
@@ -15,14 +16,15 @@ function FlujoVisualAgendamiento() {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setStep(1); 
-      
+      setStep(1);
+
       fetch(`${API_BASE}/campanas/`)
         .then(res => res.json())
         .then(data => {
           setCampanas(data);
-          
+
           if (reagendarData && reagendarData.campana_id) {
+            setShowDashboard(false);
             const campanaAutoseleccionada = data.find(c => c.id === reagendarData.campana_id);
             if (campanaAutoseleccionada) {
               handleSelectCampana(campanaAutoseleccionada);
@@ -40,6 +42,7 @@ function FlujoVisualAgendamiento() {
     setRut('');
     setPassword('');
     setMenuAbierto(false);
+    setShowDashboard(true);
   };
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
@@ -113,6 +116,7 @@ function FlujoVisualAgendamiento() {
       if (res.ok) {
         setUser(data.usuario);
         localStorage.setItem('user', JSON.stringify(data.usuario));
+        setShowDashboard(true);
         fetchCampanas();
       } else {
         setError(data.error || 'Credenciales inválidas');
@@ -373,8 +377,83 @@ function FlujoVisualAgendamiento() {
           </form>
         )}
 
-        {step === 1 && (
+        {step > 0 && showDashboard && (
+          <div style={{ textAlign: 'left', padding: '20px' }}>
+            <h2 style={{ marginBottom: '15px' }}>¡Bienvenido a VacunApp! 👋</h2>
+            <p style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '25px', lineHeight: '1.5' }}>
+              Esta plataforma integral te permite gestionar todo el proceso de vacunación de manera rápida y segura.
+            </p>
+
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+              {user?.rol === 'Paciente' && (
+                <div>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '15px' }}>Como Paciente, puedes:</h3>
+                  <ul style={{ color: 'var(--text-muted)', lineHeight: '1.8', paddingLeft: '20px' }}>
+                    <li>📅 <strong>Agendar horas</strong> para recibir tus vacunas en los centros disponibles.</li>
+                    <li>📜 Revisar tu <strong>historial médico</strong> de vacunas aplicadas.</li>
+                    <li>🔄 Consultar, cancelar o <strong>reagendar</strong> citas existentes de forma sencilla.</li>
+                    <li>🧑‍⚕️ Actualizar tu perfil y datos de contacto.</li>
+                  </ul>
+                </div>
+              )}
+              {user?.rol === 'Personal' && (
+                <div>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '15px' }}>Como Personal de Salud, puedes:</h3>
+                  <ul style={{ color: 'var(--text-muted)', lineHeight: '1.8', paddingLeft: '20px' }}>
+                    <li>💉 <strong>Registrar la aplicación</strong> de vacunas a los pacientes en tiempo real.</li>
+                    <li>📜 Revisar el <strong>historial de vacunación</strong> del sistema para verificar dosis previas.</li>
+                    <li>📅 Agendar horas para ti o asistir a pacientes presenciales.</li>
+                  </ul>
+                </div>
+              )}
+              {user?.rol === 'Admin' && (
+                <div>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '15px' }}>Como Administrador, tienes control total:</h3>
+                  <ul style={{ color: 'var(--text-muted)', lineHeight: '1.8', paddingLeft: '20px' }}>
+                    <li>📢 Crear y gestionar <strong>Campañas de Vacunación</strong> vigentes.</li>
+                    <li>🧪 Administrar el inventario y catálogo de <strong>Vacunas</strong>.</li>
+                    <li>🏥 Registrar y actualizar <strong>Centros de Vacunación</strong>.</li>
+                    <li>👨‍💼 Monitorear el historial y <strong>desempeño del personal médico</strong>.</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: '40px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowDashboard(false)}
+                style={{ background: 'var(--primary)', padding: '15px 30px', fontSize: '1.1rem', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' }}
+              >
+                📅 Ir a Agendar Cita
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && !showDashboard && (
           <div>
+            {!reagendarData && (
+              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                <button
+                  onClick={() => setShowDashboard(true)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--glass-border)',
+                    color: 'var(--text-muted)',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    width: 'auto',
+                    marginTop: 0,
+                    display: 'inline-block'
+                  }}
+                  title="Deshacer acción: Volver a la pantalla de información inicial"
+                >
+                  ↩️ Volver
+                </button>
+              </div>
+            )}
             <h2>{reagendarData ? 'Reagendando tu hora' : 'Selecciona una Campaña'}</h2>
             <p className="subtitle">
               {reagendarData
@@ -393,8 +472,30 @@ function FlujoVisualAgendamiento() {
           </div>
         )}
 
-        {step === 2 && (
+        {step === 2 && !showDashboard && (
           <div>
+            {!reagendarData && (
+              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                <button 
+                  onClick={() => setStep(1)} 
+                  style={{ 
+                    background: 'transparent', 
+                    border: '1px solid var(--glass-border)', 
+                    color: 'var(--text-muted)', 
+                    padding: '8px 16px', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    width: 'auto',
+                    marginTop: 0,
+                    display: 'inline-block'
+                  }}
+                  title="Deshacer acción: Volver a la selección de campañas"
+                >
+                  ↩️ Volver
+                </button>
+              </div>
+            )}
             <h2>Centros Disponibles</h2>
             <p className="subtitle">Selecciona el centro de vacunación</p>
             {centros.length === 0 ? <p style={{ textAlign: 'center' }}>No hay centros con cupos disponibles para esta campaña.</p> : null}
@@ -404,12 +505,33 @@ function FlujoVisualAgendamiento() {
                 <p>{c.direccion}</p>
               </div>
             ))}
-            {!reagendarData && <button onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid var(--glass-border)' }}>Volver a Campañas</button>}
           </div>
         )}
 
-        {step === 3 && (
+        {step === 3 && !showDashboard && (
           <div>
+            {!reagendarData && (
+              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                <button 
+                  onClick={() => setStep(2)} 
+                  style={{ 
+                    background: 'transparent', 
+                    border: '1px solid var(--glass-border)', 
+                    color: 'var(--text-muted)', 
+                    padding: '8px 16px', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    width: 'auto',
+                    marginTop: 0,
+                    display: 'inline-block'
+                  }}
+                  title="Deshacer acción: Volver a la selección de centros"
+                >
+                  ↩️ Volver
+                </button>
+              </div>
+            )}
             <h2>Horarios Disponibles</h2>
             <p className="subtitle">Selecciona tu hora preferida en {selectedCentro?.nombre}</p>
             {citasValidas.length === 0 ? <p style={{ textAlign: 'center' }}>No hay horarios disponibles.</p> : null}
@@ -488,13 +610,11 @@ function FlujoVisualAgendamiento() {
                 Confirmar Hora: {selectedCita.fecha} a las {selectedCita.hora}
               </button>
             )}
-
-            {!reagendarData && <button onClick={() => setStep(2)} style={{ background: 'transparent', border: '1px solid var(--glass-border)', width: '100%' }}>Volver a Centros</button>}
             {error && <p className="error-message">{error}</p>}
           </div>
         )}
 
-        {step === 4 && (
+        {step === 4 && !showDashboard && (
           <div className="success-message">
             <svg style={{ width: '80px', height: '80px', margin: '0 auto', display: 'block', color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <h2>¡Cita Agendada!</h2>
@@ -504,7 +624,18 @@ function FlujoVisualAgendamiento() {
               <p><strong>Centro:</strong> {selectedCentro?.nombre}</p>
               <p><strong>Fecha y Hora:</strong> {selectedCita?.fecha} a las {selectedCita?.hora}</p>
             </div>
-            <button onClick={() => setStep(1)} style={{ marginTop: '30px' }}>Agendar otra cita</button>
+            <button 
+              onClick={() => { 
+                setStep(1); 
+                setShowDashboard(true); 
+                setSelectedCampana(null); 
+                setSelectedCentro(null); 
+                setSelectedCita(null); 
+              }} 
+              style={{ marginTop: '30px', background: 'var(--primary)', padding: '12px 24px', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' }}
+            >
+              🏠 Volver al Inicio
+            </button>
           </div>
         )}
       </div>
