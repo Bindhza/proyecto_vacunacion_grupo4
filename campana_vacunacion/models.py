@@ -73,6 +73,11 @@ class Cita(models.Model):
     campana = models.ForeignKey('Campaña', on_delete=models.SET_NULL, null=True)
     paciente_citado = models.ForeignKey('manejo_usuarios.Paciente', on_delete=models.SET_NULL, null=True)
     personal_citado = models.ForeignKey('manejo_usuarios.Personal', on_delete=models.SET_NULL, null=True)
+    
+    # Campos de control para notificaciones de recordatorio
+    recordatorio_enviado = models.BooleanField(default=False)
+    intentos_recordatorio = models.IntegerField(default=0)
+    ultimo_intento_recordatorio = models.DateTimeField(null=True, blank=True)
 
     def esta_disponible(self):
         # Comprobamos la disponibilidad de la cita, si su estado es True y no tiene un paciente asignado entonces esta disponible
