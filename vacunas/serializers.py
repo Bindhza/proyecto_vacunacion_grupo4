@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from django.db import transaction
+# pyrefly: ignore [missing-import]
 from rest_framework import serializers
 from .models import *
 from manejo_usuarios.models import Usuario
@@ -82,6 +84,7 @@ class FormularioVacunacionSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
+        # pyrefly: ignore [missing-import]
         from django.db.models import Max
 
         id_usuario = validated_data.get('id_usuario')
