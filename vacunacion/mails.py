@@ -18,7 +18,7 @@ def enviar_correo_confirmacion(email_destino, nombre_paciente, nombre_vacuna, ci
     }
     
     # 1. Renderiza el HTML con los datos dinámicos
-    html_content = render_to_string("vacunacion/mails/confirmacion_hora.html", context)
+    html_content = render_to_string("mails/confirmacion_hora.html", context)
     # 2. Crea una versión en texto plano (por accesibilidad)
     text_content = strip_tags(html_content)
     
@@ -41,7 +41,7 @@ def enviar_post_vacunacion(email_destino, nombre_paciente, nombre_vacuna, cita_f
     }
     
     # 1. Renderiza el HTML con los datos dinámicos
-    html_content = render_to_string("vacunacion/mails/post_vacunacion.html", context)
+    html_content = render_to_string("mails/post_vacunacion.html", context)
     # 2. Crea una versión en texto plano (por accesibilidad)
     text_content = strip_tags(html_content)
     
