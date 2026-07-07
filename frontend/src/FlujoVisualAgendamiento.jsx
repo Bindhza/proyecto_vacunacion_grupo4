@@ -312,34 +312,34 @@ function FlujoVisualAgendamiento() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1 }}>
-              <Link to="/perfil" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mi Perfil</button>
+              <Link to="/perfil" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Configura tus datos personales y medios de contacto">
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>🧑‍⚕️ Mi Perfil</button>
               </Link>
-              <Link to="/historial" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Historial</button>
+              <Link to="/historial" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Revisa el registro histórico de todas tus vacunas aplicadas">
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>📜 Historial</button>
               </Link>
-              <Link to="/mis-citas" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Mis Horas Agendadas</button>
+              <Link to="/mis-citas" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Consulta, cancela o reagenda tus próximas citas">
+                <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>📅 Mis Horas Agendadas</button>
               </Link>
 
               {user.rol === 'Personal' && (
-                <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                  <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white' }}>Formulario de Vacunación</button>
+                <Link to="/formulario/vacunacion" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Registra rápidamente la vacunación de un paciente">
+                  <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>💉 Formulario de Vacunación</button>
                 </Link>
               )}
               {user.rol === 'Admin' && (
                 <>
-                  <Link to="/formulario/campana" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #10b981', color: 'white' }}>Campañas</button>
+                  <Link to="/formulario/campana" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Abre, edita o cierra campañas de vacunación vigentes">
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #10b981', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>📢 Campañas</button>
                   </Link>
-                  <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6', color: 'white' }}>Vacunas</button>
+                  <Link to="/formulario/vacuna" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Configura los tipos de vacunas que tu centro administra">
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #8b5cf6', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>🧪 Vacunas</button>
                   </Link>
-                  <Link to="/formulario/centro" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)', color: 'white' }}>Centro de Vacunación</button>
+                  <Link to="/formulario/centro" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Modifica los detalles y ubicaciones de los centros de salud">
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid var(--accent)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>🏥 Centro de Vacunación</button>
                   </Link>
-                  <Link to="/admin/historial-personal" style={{ textDecoration: 'none' }} onClick={toggleMenu}>
-                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #3b82f6', color: 'white' }}>Historial por Personal</button>
+                  <Link to="/admin/historial-personal" style={{ textDecoration: 'none' }} onClick={toggleMenu} title="Supervisa el desempeño del personal de vacunación">
+                    <button style={{ width: '100%', padding: '12px 16px', backgroundColor: 'transparent', border: '1px solid #3b82f6', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>👨‍💼 Historial por Personal</button>
                   </Link>
                 </>
               )}

@@ -117,27 +117,31 @@ function MenuPrincipal() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1 }}>
           {(rol === 'Paciente' || rol === 'Personal') && (
             <ButtonMenuPrincipal 
-              mensaje="Agendar Cita"
+              mensaje="📅 Agendar Cita"
               ruta="/agendamiento"
+              title="Programa una nueva cita para vacunación en el centro de tu preferencia"
             />
           )}
 
           {rol === 'Personal' && (
             <ButtonMenuPrincipal 
-              mensaje="Formulario de Vacunación"
+              mensaje="💉 Formulario de Vacunación"
               ruta="/formulario/vacunacion"
+              title="Registra a un paciente vacunado en el sistema"
             />
           )}
 
           {rol === 'Admin' && (
             <>
               <ButtonMenuPrincipal 
-                mensaje="Formulario de Vacunas"
+                mensaje="🧪 Formulario de Vacunas"
                 ruta="/formulario/vacuna"
+                title="Administra el inventario y tipos de vacunas disponibles"
               />
               <ButtonMenuPrincipal 
-                mensaje="Centro de Vacunación"
+                mensaje="🏥 Centro de Vacunación"
                 ruta="/formulario/centro"
+                title="Gestiona la información y disponibilidad de los centros de salud"
               />
             </>
           )}
