@@ -33,6 +33,37 @@ class VacunacionPorCampañaViewSet(viewsets.ModelViewSet):
 class CrearVacunacionRegistroAPIView(CreateAPIView):
     serializer_class = FormularioVacunacionSerializer
 
+    def perform_create(self, serializer):
+        vacunacion = serializer.save()
+        
+        try:
+            from manejo_usuarios.models import Usuario
+            from vacunacion.mails import enviar_post_vacunacion
+
+            rut_paciente = serializer.validated_data.get('id_usuario')
+            usuario = Usuario.objects.get(rut=rut_paciente)
+            
+            email_destino = usuario.correo
+            nombre_paciente = f"{usuario.nombres} {usuario.apellidos}"
+            
+            campana = vacunacion.campana
+            nombre_vacuna = campana.nombre_campaña if campana else "Campaña de Vacunación"
+            
+            centro = vacunacion.centro_vacunacion
+            nombre_centro = centro.nombre_centro if centro else "Centro de Vacunación"
+            
+            fecha_vacunacion = str(vacunacion.fecha_vacunacion)
+            
+            enviar_post_vacunacion(
+                email_destino=email_destino,
+                nombre_paciente=nombre_paciente,
+                nombre_vacuna=nombre_vacuna,
+                cita_fecha=fecha_vacunacion,
+                nombre_centro=nombre_centro
+            )
+        except Exception as mail_error:
+            print(f"Error enviando correo post-vacunación: {mail_error}")
+
 
 #funcion para pedir rut del personal del frontend y validar si es personal de la salud
 #si lo es retorna su centro de vacunacion

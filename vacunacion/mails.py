@@ -9,12 +9,12 @@ from django.conf import settings
 
 def enviar_correo_confirmacion(email_destino, nombre_paciente, nombre_vacuna, cita_fecha, cita_hora, centro_nombre, centro_direccion):
     context = {
-        "paciente_nombre": nombre_paciente,
-        "vacuna_nombre": nombre_vacuna,
-        "fecha_cita": cita_fecha,
-        "hora_cita": cita_hora,
-        "centro_nombre": centro_nombre,
-        "centro_direccion": centro_direccion,
+        "paciente_nombre": nombre_paciente or "Paciente",
+        "vacuna_nombre": nombre_vacuna or "Campaña de Vacunación",
+        "fecha_cita": cita_fecha or "Fecha no registrada",
+        "hora_cita": cita_hora or "Hora no registrada",
+        "centro_nombre": centro_nombre or "Centro de Vacunación",
+        "centro_direccion": centro_direccion or "Dirección no registrada",
     }
     
     # 1. Renderiza el HTML con los datos dinámicos
@@ -34,10 +34,10 @@ def enviar_correo_confirmacion(email_destino, nombre_paciente, nombre_vacuna, ci
 
 def enviar_post_vacunacion(email_destino, nombre_paciente, nombre_vacuna, cita_fecha, nombre_centro):
     context = {
-        "paciente_nombre": nombre_paciente,
-        "vacuna_nombre": nombre_vacuna,
-        "cita_fecha": cita_fecha,
-        "centro_nombre": nombre_centro,
+        "paciente_nombre": nombre_paciente or "Paciente",
+        "vacuna_nombre": nombre_vacuna or "Campaña de Vacunación",
+        "cita_fecha": cita_fecha or "Fecha no registrada",
+        "centro_nombre": nombre_centro or "Centro de Vacunación",
     }
     
     # 1. Renderiza el HTML con los datos dinámicos
@@ -46,7 +46,7 @@ def enviar_post_vacunacion(email_destino, nombre_paciente, nombre_vacuna, cita_f
     text_content = strip_tags(html_content)
     
     msg = EmailMultiAlternatives(
-        subject="Confirmación de tu Cita de Vacunación",
+        subject="Comprobante de Vacunación e Información Post-Inoculación",
         body=text_content,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[email_destino]

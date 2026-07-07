@@ -163,7 +163,7 @@ def agendar_cita(request):
                     centro_direccion = cita.centro_vacunacion.obtener_direccion_completa_centro() if cita.centro_vacunacion else "Dirección no registrada"
 
                     enviar_correo_confirmacion(
-                        email_destino="be.pobletecastillo@gmail.com",
+                        email_destino=paciente_obj.correo,
                         nombre_paciente=nombre_paciente,
                         nombre_vacuna=nombre_vacuna,
                         cita_fecha=str(cita.fecha_cita),
