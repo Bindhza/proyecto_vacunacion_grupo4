@@ -7,6 +7,8 @@ function HistorialVacunas() {
   const [historialAplicadas, setHistorialAplicadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filtroCampana, setFiltroCampana] = useState('');
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -81,9 +83,38 @@ function HistorialVacunas() {
         {user && user.rol === 'Personal' && (
           <div style={{ marginTop: '30px' }}>
             <h2 style={{ textAlign: 'left', marginBottom: '20px' }}>Historial de Vacunas Aplicadas</h2>
+            
+            {/* Filtros */}
+            {historialAplicadas.length > 0 && (
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                <input 
+                  type="text" 
+                  placeholder="🔍 Buscar por nombre o RUT del paciente..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ flex: '1', padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+                />
+                <select 
+                  value={filtroCampana} 
+                  onChange={(e) => setFiltroCampana(e.target.value)}
+                  style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.8)', color: 'white' }}
+                >
+                  <option value="">Todas las Campañas</option>
+                  {[...new Set(historialAplicadas.map(h => h.campana))].map(campana => (
+                    <option key={campana} value={campana}>{campana}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {historialAplicadas.length > 0 ? (
               <div style={{ display: 'grid', gap: '15px' }}>
-                {historialAplicadas.map(h => (
+                {historialAplicadas.filter(h => {
+                  const matchName = h.paciente_nombre?.toLowerCase().includes(searchTerm.toLowerCase());
+                  const matchRut = h.paciente_rut?.toLowerCase().includes(searchTerm.toLowerCase());
+                  const matchCampana = filtroCampana === '' || h.campana === filtroCampana;
+                  return (matchName || matchRut) && matchCampana;
+                }).map(h => (
                   <div key={h.id} style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '20px', borderRadius: '12px', border: '1px solid #8b5cf6', textAlign: 'left' }}>
                     <p style={{ margin: '0 0 10px 0', fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Aplicado a: {h.paciente_nombre} ({h.paciente_rut})</p>
                     <p style={{ margin: '5px 0', color: 'var(--text-muted)' }}><strong>Campaña:</strong> {h.campana} - Dosis {h.dosis}</p>

@@ -7,12 +7,12 @@ class Vacunacion(models.Model):
     fecha_vacunacion = models.DateField()
     hora_vacunacion = models.TimeField(null=True, blank=True)
     observaciones = models.CharField(max_length=100)
-    campana = models.ForeignKey('campana_vacunacion.Campaña', on_delete=models.SET_NULL, null=True)
-    centro_vacunacion = models.ForeignKey('campana_vacunacion.CentroVacunacion', on_delete=models.SET_NULL, null=True)
+    campana = models.ForeignKey('campana_vacunacion.Campaña', on_delete=models.RESTRICT, null=True)
+    centro_vacunacion = models.ForeignKey('campana_vacunacion.CentroVacunacion', on_delete=models.RESTRICT, null=True)
 
 class VacunacionPorCampaña(models.Model):
-    id_vacunacion = models.ForeignKey('Vacunacion', on_delete=models.SET_NULL, null=True)
-    id_campaña = models.ForeignKey('campana_vacunacion.Campaña', on_delete=models.SET_NULL, null=True)
+    id_vacunacion = models.ForeignKey('Vacunacion', on_delete=models.RESTRICT, null=True)
+    id_campaña = models.ForeignKey('campana_vacunacion.Campaña', on_delete=models.RESTRICT, null=True)
 
 class Vacuna(models.Model):
 
@@ -22,4 +22,4 @@ class Vacuna(models.Model):
 
 class UsuarioRecibioVacuna(models.Model):
     id_usuario = models.ForeignKey('manejo_usuarios.Usuario', on_delete=models.CASCADE)
-    id_vacunacion = models.ForeignKey('Vacunacion', on_delete=models.SET_NULL, null=True)
+    id_vacunacion = models.ForeignKey('Vacunacion', on_delete=models.RESTRICT, null=True)

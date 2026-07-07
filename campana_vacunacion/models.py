@@ -11,7 +11,7 @@ class Campaña(models.Model):
     fecha_fin = models.DateField()
     estado_campaña = models.BooleanField()
     centros_vacunacion = models.ManyToManyField('CentroVacunacion', blank=True)
-    vacuna = models.ForeignKey('vacunas.Vacuna', on_delete=models.SET_NULL, null=True, blank=True)
+    vacuna = models.ForeignKey('vacunas.Vacuna', on_delete=models.RESTRICT, null=True, blank=True)
 
     # Obtenemos la fecha de hoy, la comparamos con las fechas de inicio y fin y analizamos el estado de la campaña
     def verificar_vigencia(self):
@@ -68,9 +68,9 @@ class Cita(models.Model):
     id_cita = models.IntegerField(unique=True, primary_key=True)
     fecha_cita = models.DateField()
     hora_cita = models.TimeField()
-    centro_vacunacion = models.ForeignKey('CentroVacunacion', on_delete=models.SET_NULL, null=True)
+    centro_vacunacion = models.ForeignKey('CentroVacunacion', on_delete=models.RESTRICT, null=True)
     estado_cita = models.BooleanField()
-    campana = models.ForeignKey('Campaña', on_delete=models.SET_NULL, null=True)
+    campana = models.ForeignKey('Campaña', on_delete=models.RESTRICT, null=True)
     paciente_citado = models.ForeignKey('manejo_usuarios.Paciente', on_delete=models.SET_NULL, null=True)
     personal_citado = models.ForeignKey('manejo_usuarios.Personal', on_delete=models.SET_NULL, null=True)
     
