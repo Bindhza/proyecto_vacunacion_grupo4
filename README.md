@@ -129,7 +129,7 @@ Debido a las restricciones de envio gratuito, para poder probar esta funcionalid
 
 1. **Crear cuenta en Resend:** El evaluador debe registrarse gratuitamente en [Resend.com](https://resend.com) usando su correo personal o institucional
 2. **Obtener API Key:** Desde el dashboard de Resend, generar una nueva API Key.
-3. **Configurar el entorno (.env):** Abrir el archivo `.env` que ya se encuentra creado en la raíz del proyecto y reemplazar el valor de la variable por la llave recién generada:
+3. **Configurar el entorno (.env):** Crear un archivo `.env` en la raíz del proyecto y escribir lo siguiente:
    ```env
    RESEND_API_KEY=aqui_va_la_api_key
    DEFAULT_FROM_EMAIL=onboarding@resend.dev
