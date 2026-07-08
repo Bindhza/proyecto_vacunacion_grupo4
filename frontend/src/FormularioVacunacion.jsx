@@ -181,7 +181,7 @@ function FormularioVacunacion() {
                             ejemplo="Ej. 2022-01-01"
                             valor_almacenado={fecha_vacunacion}
                             onChange={(val) => setFechaVacunacion(val)}
-                            min={today}
+                            max={today}
                         />
 
                         <CampoTextoInput
