@@ -117,7 +117,7 @@ El sistema cuenta con las siguientes cuentas pre-configuradas para probar los di
 ---
 
 ## Demostracion en video
-https://drive.google.com/file/d/1nv_SmY6xS2g74hjsVSia6xGMzy3MhTae/view?usp=sharing
+https://drive.google.com/file/d/1CWsQg-Rj63e_rsj0Bkx-aAnbCATQyCnQ/view?usp=sharing
 
 ---
 
