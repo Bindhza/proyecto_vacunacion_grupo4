@@ -11,8 +11,8 @@ def enviar_correo_confirmacion(email_destino, nombre_paciente, nombre_vacuna, ci
     context = {
         "paciente_nombre": nombre_paciente or "Paciente",
         "vacuna_nombre": nombre_vacuna or "Campaña de Vacunación",
-        "fecha_cita": cita_fecha or "Fecha no registrada",
-        "hora_cita": cita_hora or "Hora no registrada",
+        "cita_fecha": cita_fecha or "Fecha no registrada",
+        "cita_hora": cita_hora or "Hora no registrada",
         "centro_nombre": centro_nombre or "Centro de Vacunación",
         "centro_direccion": centro_direccion or "Dirección no registrada",
     }
@@ -58,8 +58,8 @@ def enviar_recordatorio_cita(email_destino, nombre_paciente, nombre_vacuna, cita
     context = {
         "paciente_nombre": nombre_paciente or "Paciente",
         "vacuna_nombre": nombre_vacuna or "Campaña de Vacunación",
-        "fecha_cita": cita_fecha or "Fecha no registrada",
-        "hora_cita": cita_hora or "Hora no registrada",
+        "cita_fecha": cita_fecha or "Fecha no registrada",
+        "cita_hora": cita_hora or "Hora no registrada",
         "centro_nombre": centro_nombre or "Centro de Vacunación",
         "centro_direccion": centro_direccion or "Dirección no registrada",
     }

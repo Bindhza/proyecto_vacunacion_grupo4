@@ -30,7 +30,7 @@ source venv/bin/activate
 venv\Scripts\activate
 
 # Instalar las dependencias de Python requeridas
-pip install django djangorestframework django-cors-headers python-dotenv
+pip install django djangorestframework django-cors-headers python-dotenv django-anymail
 
 # Realizar migraciones de la base de datos
 python3 manage.py makemigrations
@@ -118,6 +118,24 @@ El sistema cuenta con las siguientes cuentas pre-configuradas para probar los di
 
 ## Demostracion en video
 https://drive.google.com/file/d/1nv_SmY6xS2g74hjsVSia6xGMzy3MhTae/view?usp=sharing
+
+---
+
+## Prueba de Integración de Correos 
+
+El sistema ya está programado para enviar automáticamente un correo electrónico de confirmación cada vez que un paciente agenda una cita exitosamente. 
+
+Debido a las restricciones de envio gratuito, para poder probar esta funcionalidad se deben seguir los siguientes pasos:
+
+1. **Crear cuenta en Resend:** El evaluador debe registrarse gratuitamente en [Resend.com](https://resend.com) usando su correo personal o institucional
+2. **Obtener API Key:** Desde el dashboard de Resend, generar una nueva API Key.
+3. **Configurar el entorno (.env):** Abrir el archivo `.env` que ya se encuentra creado en la raíz del proyecto y reemplazar el valor de la variable por la llave recién generada:
+   ```env
+   RESEND_API_KEY=aqui_va_la_api_key
+   DEFAULT_FROM_EMAIL=onboarding@resend.dev
+   ```
+4. **Asignar el correo al Paciente:** Modificar el `correo` de uno de los pacientes de prueba y colocar **exactamente el mismo correo** con el que se registró en Resend. *(Resend restringe los envíos gratuitos únicamente al correo dueño de la cuenta)*.
+5. **Agendar:** Agendar una cita y revisar la bandeja de entrada.
 
 ## Información Académica
 
