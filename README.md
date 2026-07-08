@@ -29,8 +29,8 @@ source venv/bin/activate
 # En Windows:
 venv\Scripts\activate
 
-# Instalar las dependencias de Python
-pip install django djangorestframework django-cors-headers
+# Instalar las dependencias de Python requeridas
+pip install django djangorestframework django-cors-headers python-dotenv
 
 # Realizar migraciones de la base de datos
 python3 manage.py makemigrations
@@ -75,19 +75,33 @@ Esta implementacion esta diseñada en base a una serie de diagramas que fueron e
 
 ---
 
-## Implementacion Basica
+## Estado Actual de la Aplicación
 
-Esta primera implementacion se considera una version muy rudimentaria de lo que seria la version finalizada del programa, hay muchos detalles que no estan completados al 100 como podria ser, la implementacion de notificaciones, un dashboard para administradores o personal de salud, un mejor sistema de agendamiento, con horas, stock visible y cupos, esto y diversos otros detalles seran barajados e implementados en futuras versiones.
+Esta versión finalizada del sistema integra múltiples características avanzadas centradas en la usabilidad y la integridad de los datos. Entre sus capacidades actuales se incluyen:
+
+- **Sistema de Agendamiento Robusto:** Los pacientes pueden agendar citas con control dinámico de cupos (máximo 10 personas cada 15 minutos) e información de direcciones completas.
+- **Flexibilidad y Control (UX):** Posibilidad de cancelar o reagendar citas fácilmente desde el perfil, con ventanas de confirmación para evitar errores accidentales.
+- **Historiales Dinámicos:** Seguimiento en tiempo real de vacunas recibidas (para pacientes) y administradas (para el personal), con filtros por RUT y ordenamiento cronológico.
+- **Gestión Administrativa Segura:** El administrador cuenta con interfaces de búsqueda integradas y un sistema *Soft-Lock* para confirmar la eliminación de campañas o centros críticos de la base de datos.
+- **Diseño Premium:** Uso de componentes estéticos consistentes que mejoran la experiencia de uso general.
 
 ## Credenciales de prueba
 
-Paciente---> Rut : 11111111-1
+El sistema cuenta con las siguientes cuentas pre-configuradas para probar los distintos perfiles de acceso:
 
-Personal ---> Rut : 22222222-2
+### Administradores
+* Rut: `99999999-9` | Contraseña: `adminpassword123`
+* Rut: `33333333-3` | Contraseña: `admin`
 
-Admin ---> Rut : 33333333-3
+### Personal de Salud (Enfermeros)
+* Rut: `88888888-8` | Contraseña: `personalpassword123`
+* Rut: `22222222-2` | Contraseña: `admin`
 
-password (para cada rol) ---> admin
+### Pacientes
+* Rut: `77777777-7` | Contraseña: `pacientepassword123`
+* Rut: `66666666-6` | Contraseña: `pacientepassword123`
+* Rut: `55555555-5` | Contraseña: `pacientepassword123`
+* Rut: `11111111-1` | Contraseña: `admin`
 
 ---
 

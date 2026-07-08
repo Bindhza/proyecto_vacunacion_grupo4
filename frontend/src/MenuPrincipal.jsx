@@ -60,7 +60,6 @@ function MenuPrincipal() {
       {/* Main Content Area */}
       <div style={{ padding: '40px', textAlign: 'center', flex: 1 }}>
         <h2>Bienvenido, {user.nombres} {user.apellidos}</h2>
-        <p style={{ color: '#666', fontSize: '18px' }}>Rol: {rol}</p>
         <p style={{ marginTop: '20px' }}>
           Selecciona una opción en el menú de la derecha para continuar.
         </p>

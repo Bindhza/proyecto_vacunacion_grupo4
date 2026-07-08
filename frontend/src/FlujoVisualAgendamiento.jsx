@@ -222,8 +222,11 @@ function FlujoVisualAgendamiento() {
       {step > 0 && user && (
         <>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)', zIndex: 10 }}>
-            <div>
-              <strong style={{ fontSize: '1.1rem', color: 'white' }}>VacunApp - Bienvenido, {user.nombres} ({user.rol || 'Paciente'})</strong>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.5rem' }}>💉</span>
+              </div>
+              <strong style={{ fontSize: '1.1rem', color: 'white' }}>VacunApp - Bienvenido, {user.nombres}</strong>
             </div>
             <button
               onClick={toggleMenu}

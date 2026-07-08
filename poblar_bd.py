@@ -38,11 +38,11 @@ def poblar_bd():
     print("Creando Vacunas...")
     vacuna_influenza, _ = Vacuna.objects.get_or_create(
         id_vacuna=1,
-        defaults={'nombre_vacuna': 'Influenza Tetravalente', 'cantidad_dosis': 1000}
+        defaults={'nombre_vacuna': 'Influenza Tetravalente', 'stock_disponible': 1000}
     )
     vacuna_covid, _ = Vacuna.objects.get_or_create(
         id_vacuna=2,
-        defaults={'nombre_vacuna': 'COVID-19 Bivalente', 'cantidad_dosis': 1500}
+        defaults={'nombre_vacuna': 'COVID-19 Bivalente', 'stock_disponible': 1500}
     )
 
     # 4. Crear Campañas
