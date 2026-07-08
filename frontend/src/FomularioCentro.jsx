@@ -16,7 +16,7 @@ function FormularioCentro() {
   const [numero, setNumero] = useState('')
   const [ciudad, setCiudad] = useState('')
   const [isEditing, setIsEditing] = useState(false)
-  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
+  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, esCritico: false, onConfirm: null })
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -35,9 +35,10 @@ function FormularioCentro() {
   const handleDelete = (id) => {
     setModalInfo({
       show: true,
-      mensaje: '¿Estás seguro de que deseas eliminar este centro?',
+      mensaje: '¿Estás seguro de que deseas eliminar este centro? Esta acción es irreversible.',
       esError: false,
       esConfirm: true,
+      esCritico: true,
       onConfirm: () => {
         axios.delete(`http://127.0.0.1:8000/api/centro/${id}/`)
           .then(() => {
@@ -256,8 +257,9 @@ function FormularioCentro() {
         mensaje={modalInfo.mensaje} 
         esError={modalInfo.esError} 
         esConfirm={modalInfo.esConfirm}
+        esCritico={modalInfo.esCritico}
         onConfirm={modalInfo.onConfirm}
-        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })} 
+        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false, esCritico: false })} 
       />
     </div>
   )

@@ -20,7 +20,7 @@ function FormularioCampana() {
   const [centrosList, setCentrosList] = useState([])
   const [vacunasList, setVacunasList] = useState([])
   const [isEditing, setIsEditing] = useState(false)
-  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
+  const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, esCritico: false, onConfirm: null })
 
   const user = JSON.parse(localStorage.getItem('user'))
   const isAdmin = user && user.rol === 'Admin'
@@ -81,9 +81,10 @@ function FormularioCampana() {
   const handleDelete = (id) => {
     setModalInfo({
       show: true,
-      mensaje: '¿Estás seguro de que deseas eliminar esta campaña?',
+      mensaje: '¿Estás seguro de que deseas eliminar esta campaña? Esta acción es irreversible.',
       esError: false,
       esConfirm: true,
+      esCritico: true,
       onConfirm: () => {
         axios.delete(`http://127.0.0.1:8000/api/campana_crud/${id}/`)
           .then(() => {
@@ -347,8 +348,9 @@ function FormularioCampana() {
         mensaje={modalInfo.mensaje} 
         esError={modalInfo.esError} 
         esConfirm={modalInfo.esConfirm}
+        esCritico={modalInfo.esCritico}
         onConfirm={modalInfo.onConfirm}
-        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false })} 
+        onClose={() => setModalInfo({ show: false, mensaje: '', esError: false, esConfirm: false, esCritico: false })} 
       />
     </div>
   )
