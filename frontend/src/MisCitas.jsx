@@ -7,6 +7,7 @@ function MisCitas() {
   const [loading, setLoading] = useState(true);
   const [citaACancelar, setCitaACancelar] = useState(null);
   const [mensajeOperacion, setMensajeOperacion] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); // asc = Más prontas primero
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -84,7 +85,21 @@ function MisCitas() {
           <p style={{ color: 'var(--text-muted)', textAlign: 'left' }}>No tienes citas agendadas.</p>
         ) : (
           <div>
-            {citas.map((c) => (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+              <select 
+                value={sortOrder} 
+                onChange={(e) => setSortOrder(e.target.value)}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.8)', color: 'white', cursor: 'pointer' }}
+              >
+                <option value="asc">🕒 Ordenar: Más prontas primero</option>
+                <option value="desc">🕒 Ordenar: Más lejanas primero</option>
+              </select>
+            </div>
+            {[...citas].sort((a, b) => {
+              const dateA = new Date(`${a.fecha}T${a.hora}`);
+              const dateB = new Date(`${b.fecha}T${b.hora}`);
+              return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+            }).map((c) => (
               <div key={c.id} className="list-item" style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1.1rem', marginBottom: '5px' }}>{c.campana}</h3>

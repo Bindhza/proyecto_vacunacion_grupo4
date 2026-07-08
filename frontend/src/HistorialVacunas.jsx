@@ -9,6 +9,8 @@ function HistorialVacunas() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroCampana, setFiltroCampana] = useState('');
+  const [sortHistorial, setSortHistorial] = useState('desc'); // desc = más recientes primero
+  const [sortAplicadas, setSortAplicadas] = useState('desc');
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -64,10 +66,26 @@ function HistorialVacunas() {
         )}
 
         <div style={{ marginTop: '30px' }}>
-          <h2 style={{ textAlign: 'left', marginBottom: '20px' }}>Historial de Vacunaciones</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ margin: 0, textAlign: 'left' }}>Historial de Vacunaciones</h2>
+            {historial.length > 0 && (
+              <select 
+                value={sortHistorial} 
+                onChange={(e) => setSortHistorial(e.target.value)}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.8)', color: 'white', cursor: 'pointer' }}
+              >
+                <option value="desc">🕒 Ordenar: Más recientes</option>
+                <option value="asc">🕒 Ordenar: Más antiguas</option>
+              </select>
+            )}
+          </div>
           {historial.length > 0 ? (
             <div style={{ display: 'grid', gap: '15px' }}>
-              {historial.map(h => (
+              {[...historial].sort((a, b) => {
+                const dateA = new Date(`${a.fecha}T${a.hora}`);
+                const dateB = new Date(`${b.fecha}T${b.hora}`);
+                return sortHistorial === 'desc' ? dateB - dateA : dateA - dateB;
+              }).map(h => (
                 <div key={h.id} style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '20px', borderRadius: '12px', border: '1px solid #10b981', textAlign: 'left' }}>
                   <p style={{ margin: '0 0 10px 0', fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Dosis {h.dosis} - {h.campana}</p>
                   <p style={{ margin: '5px 0', color: 'var(--text-muted)' }}><strong>Fecha:</strong> {h.fecha} a las {h.hora}</p>
@@ -104,6 +122,14 @@ function HistorialVacunas() {
                     <option key={campana} value={campana}>{campana}</option>
                   ))}
                 </select>
+                <select 
+                  value={sortAplicadas} 
+                  onChange={(e) => setSortAplicadas(e.target.value)}
+                  style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.8)', color: 'white', cursor: 'pointer' }}
+                >
+                  <option value="desc">🕒 Más recientes</option>
+                  <option value="asc">🕒 Más antiguas</option>
+                </select>
               </div>
             )}
 
@@ -114,6 +140,10 @@ function HistorialVacunas() {
                   const matchRut = h.paciente_rut?.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchCampana = filtroCampana === '' || h.campana === filtroCampana;
                   return (matchName || matchRut) && matchCampana;
+                }).sort((a, b) => {
+                  const dateA = new Date(`${a.fecha}T${a.hora}`);
+                  const dateB = new Date(`${b.fecha}T${b.hora}`);
+                  return sortAplicadas === 'desc' ? dateB - dateA : dateA - dateB;
                 }).map(h => (
                   <div key={h.id} style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '20px', borderRadius: '12px', border: '1px solid #8b5cf6', textAlign: 'left' }}>
                     <p style={{ margin: '0 0 10px 0', fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Aplicado a: {h.paciente_nombre} ({h.paciente_rut})</p>

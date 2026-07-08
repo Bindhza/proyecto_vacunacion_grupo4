@@ -7,6 +7,7 @@ import ModalMensaje from './components/ModalMensaje'
 function FormularioVacuna() {
   // 1. Estados para almacenar los datos
   const [vacunas, setVacunas] = useState([]) // Lista de vacunas
+  const [searchTerm, setSearchTerm] = useState('')
   const [id, setId] = useState('')           // ID para el formulario
   const [nombre, setNombre] = useState('')   // Nombre para el formulario
   const [stock, setStock] = useState('')     // Stock para el formulario
@@ -162,12 +163,22 @@ function FormularioVacuna() {
 
       {/* Listado de Resultados */}
       <div style={{ marginTop: '30px' }}>
-        <h3 style={{ marginBottom: '15px', color: 'var(--text-main)', textAlign: 'left' }}>Lista de Vacunas en el Sistema</h3>
-        {vacunas.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No hay vacunas en el sistema.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0, color: 'var(--text-main)', textAlign: 'left' }}>Lista de Vacunas en el Sistema</h3>
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar vacuna..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: '250px', padding: '8px 15px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+          />
+        </div>
+        
+        {vacunas.filter(v => v.nombre_vacuna.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No se encontraron vacunas.</p>
         ) : (
           <div>
-            {vacunas.map((v) => (
+            {vacunas.filter(v => v.nombre_vacuna.toLowerCase().includes(searchTerm.toLowerCase())).map((v) => (
               <div key={v.id_vacuna} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{v.nombre_vacuna}</h3>

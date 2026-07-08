@@ -7,6 +7,7 @@ import ModalMensaje from './components/ModalMensaje'
 
 function FormularioCampana() {
   const [campanas, setCampanas] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
   
   const [id, setId] = useState('')
   const [nombre, setNombre] = useState('')
@@ -292,12 +293,22 @@ function FormularioCampana() {
         )}
 
         <div style={{ textAlign: 'left' }}>
-          <h3 style={{ marginBottom: '15px', color: 'var(--text-main)' }}>Campañas Registradas</h3>
-          {campanas.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>No hay campañas registradas.</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Campañas Registradas</h3>
+            <input 
+              type="text" 
+              placeholder="🔍 Buscar campaña..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '250px', padding: '8px 15px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+            />
+          </div>
+          
+          {campanas.filter(c => c.nombre_campaña.toLowerCase().includes(searchTerm.toLowerCase()) || c.descripcion_campaña.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>No se encontraron campañas.</p>
           ) : (
             <div>
-              {campanas.map((c) => {
+              {campanas.filter(c => c.nombre_campaña.toLowerCase().includes(searchTerm.toLowerCase()) || c.descripcion_campaña.toLowerCase().includes(searchTerm.toLowerCase())).map((c) => {
                 const cNombres = c.centros_vacunacion && c.centros_vacunacion.length > 0
                   ? c.centros_vacunacion.map(id => centrosList.find(x => x.id_centro === id)?.nombre_centro || 'Desconocido').join(', ')
                   : 'No asignado';

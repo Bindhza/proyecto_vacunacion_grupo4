@@ -9,10 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 # pyrefly: ignore [missing-import]
 from rest_framework import viewsets
 # pyrefly: ignore [missing-import]
-from .models import Campaña, CentroVacunacion, Cita
-# pyrefly: ignore [missing-import]
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Campaña, CentroVacunacion, Cita, Direccion
 from .serializers import CentroVacunacionSerializer, CampañaSerializer
-# pyrefly: ignore [missing-import]
 from manejo_usuarios.models import Paciente, Usuario
 
 # Create your views here.
@@ -20,6 +20,40 @@ from manejo_usuarios.models import Paciente, Usuario
 class CentroVacunacionViewSet(viewsets.ModelViewSet):
     queryset = CentroVacunacion.objects.all()
     serializer_class = CentroVacunacionSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        calle = data.pop('calle', [None])[0] if isinstance(data.get('calle'), list) else data.get('calle')
+        numero = data.pop('numero', [None])[0] if isinstance(data.get('numero'), list) else data.get('numero')
+        ciudad = data.pop('ciudad', [None])[0] if isinstance(data.get('ciudad'), list) else data.get('ciudad')
+
+        if calle and numero and ciudad:
+            direccion = Direccion.objects.create(calle=calle, numero=numero, ciudad=ciudad)
+            data['direccion_centro'] = direccion.id
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        data = request.data.copy()
+        calle = data.pop('calle', [None])[0] if isinstance(data.get('calle'), list) else data.get('calle')
+        numero = data.pop('numero', [None])[0] if isinstance(data.get('numero'), list) else data.get('numero')
+        ciudad = data.pop('ciudad', [None])[0] if isinstance(data.get('ciudad'), list) else data.get('ciudad')
+
+        if calle and numero and ciudad:
+            direccion = Direccion.objects.create(calle=calle, numero=numero, ciudad=ciudad)
+            data['direccion_centro'] = direccion.id
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
 
 class CampañaViewSet(viewsets.ModelViewSet):
     queryset = Campaña.objects.all()

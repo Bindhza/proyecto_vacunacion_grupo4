@@ -11,6 +11,7 @@ function HistorialPersonalAdmin() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filtroCampana, setFiltroCampana] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc'); // desc = más recientes
 
   // Cargar la lista de personal
   useEffect(() => {
@@ -109,6 +110,14 @@ function HistorialPersonalAdmin() {
                     <option key={campana} value={campana}>{campana}</option>
                   ))}
                 </select>
+                <select 
+                  value={sortOrder} 
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.8)', color: 'white', cursor: 'pointer' }}
+                >
+                  <option value="desc">🕒 Más recientes</option>
+                  <option value="asc">🕒 Más antiguas</option>
+                </select>
               </div>
             )}
 
@@ -120,8 +129,11 @@ function HistorialPersonalAdmin() {
                   const matchName = h.paciente_nombre?.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchRut = h.paciente_rut?.toLowerCase().includes(searchTerm.toLowerCase());
                   const matchCampana = filtroCampana === '' || h.campana === filtroCampana;
-                  // Si el backend enviara h.paciente_edad se podría filtrar por edad aquí
                   return (matchName || matchRut) && matchCampana;
+                }).sort((a, b) => {
+                  const dateA = new Date(`${a.fecha}T${a.hora}`);
+                  const dateB = new Date(`${b.fecha}T${b.hora}`);
+                  return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
                 }).map(h => (
                   <div key={h.id} style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '20px', borderRadius: '12px', border: '1px solid #8b5cf6', textAlign: 'left' }}>
                     <p style={{ margin: '0 0 10px 0', fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Aplicado a: {h.paciente_nombre} ({h.paciente_rut})</p>

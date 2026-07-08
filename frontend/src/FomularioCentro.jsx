@@ -7,10 +7,14 @@ import ModalMensaje from './components/ModalMensaje'
 function FormularioCentro() {
   //estados para almacenar los datos
   const [centros, setCentros] = useState([]) // Lista de centros
+  const [searchTerm, setSearchTerm] = useState('')
   const [idCentro, setIdCentro] = useState('')
   const [nombreCentro, setNombreCentro] = useState('')
   const [comunaCentro, setComunaCentro] = useState('')
   const [regionCentro, setRegionCentro] = useState('')
+  const [calle, setCalle] = useState('')
+  const [numero, setNumero] = useState('')
+  const [ciudad, setCiudad] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [modalInfo, setModalInfo] = useState({ show: false, mensaje: '', esError: false, esConfirm: false, onConfirm: null })
 
@@ -57,7 +61,9 @@ function FormularioCentro() {
       nombre_centro: nombreCentro,
       comuna_centro: comunaCentro,
       region_centro: regionCentro,
-      direccion_centro: null 
+      calle: calle,
+      numero: numero,
+      ciudad: ciudad
     }
 
     if (isEditing) {
@@ -90,6 +96,9 @@ function FormularioCentro() {
     setNombreCentro('')
     setComunaCentro('')
     setRegionCentro('')
+    setCalle('')
+    setNumero('')
+    setCiudad('')
     setIsEditing(false)
   }
 
@@ -98,6 +107,9 @@ function FormularioCentro() {
     setNombreCentro(c.nombre_centro)
     setComunaCentro(c.comuna_centro)
     setRegionCentro(c.region_centro)
+    setCalle(c.calle || '')
+    setNumero(c.numero || '')
+    setCiudad(c.ciudad || '')
     setIsEditing(true)
     window.scrollTo(0, 0)
   }
@@ -159,6 +171,27 @@ function FormularioCentro() {
             valor_almacenado={regionCentro}
             onChange={(val) => setRegionCentro(val)}
           />
+          <CampoTextoInput
+            mensaje="Calle (Dirección)"
+            tipo_dato="text"
+            ejemplo="Ej. Av. Providencia"
+            valor_almacenado={calle}
+            onChange={(val) => setCalle(val)}
+          />
+          <CampoTextoInput
+            mensaje="Número"
+            tipo_dato="number"
+            ejemplo="Ej. 1234"
+            valor_almacenado={numero}
+            onChange={(val) => setNumero(val)}
+          />
+          <CampoTextoInput
+            mensaje="Ciudad"
+            tipo_dato="text"
+            ejemplo="Ej. Santiago"
+            valor_almacenado={ciudad}
+            onChange={(val) => setCiudad(val)}
+          />
           <div style={{ display: 'flex', gap: '10px' }}>
             <button type="submit">{isEditing ? 'Actualizar Centro' : 'Guardar en Base de Datos'}</button>
             {isEditing && (
@@ -172,16 +205,29 @@ function FormularioCentro() {
 
       {/* Listado de Resultados */}
       <div style={{ marginTop: '30px' }}>
-        <h3 style={{ marginBottom: '15px', color: 'var(--text-main)', textAlign: 'left' }}>Lista de Centros en el Sistema</h3>
-        {centros.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No hay centros de vacunación en el sistema.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0, color: 'var(--text-main)', textAlign: 'left' }}>Lista de Centros en el Sistema</h3>
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar centro, comuna o región..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: '250px', padding: '8px 15px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+          />
+        </div>
+        
+        {centros.filter(c => c.nombre_centro.toLowerCase().includes(searchTerm.toLowerCase()) || c.comuna_centro.toLowerCase().includes(searchTerm.toLowerCase()) || c.region_centro.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No se encontraron centros de vacunación.</p>
         ) : (
           <div>
-            {centros.map((c) => (
+            {centros.filter(c => c.nombre_centro.toLowerCase().includes(searchTerm.toLowerCase()) || c.comuna_centro.toLowerCase().includes(searchTerm.toLowerCase()) || c.region_centro.toLowerCase().includes(searchTerm.toLowerCase())).map((c) => (
               <div key={c.id_centro} className="list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1rem', marginBottom: '5px' }}>{c.nombre_centro}</h3>
-                  <p style={{ margin: 0 }}>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>ID: {c.id_centro} | {c.comuna_centro}, {c.region_centro}</p>
+                  <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    📍 {c.direccion_completa && c.direccion_completa !== 'Dirección no registrada' ? c.direccion_completa : 'Dirección no registrada'}
+                  </p>
                 </div>
                 {isAdmin && (
                   <div style={{ display: 'flex', gap: '10px' }}>
